@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>松雀 - Mahjong Score</title>
+    
+    <!-- PWA & iOS Support -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="松雀">
+    
+    <!-- JavaScriptで動的にアイコン・ファビコンを設定してコードの見通しを維持 -->
+    <script>
+        const appIconData = "https://i.imgur.com/8Q8N402.png"; // または画像データをそのまま使用可能
+    </script>
+    
+    <style>
+        :root {
+            --primary: #004d40; /* 深緑 */
+            --accent: #d4af37;  /* ゴールド */
+            --bg: #121212;
+            --card-bg: #1e1e1e;
+            --text: #e0e0e0;
+            --danger: #cf6679;
+            --success: #03dac6;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding-bottom: 50px;
+            line-height: 1.6;
+        }
+
+        /* 🀄 スプラッシュ画面 */
+        #splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle at center, #1b3d2f 0%, #0a0a0a 100%);
+            z-index: 9999;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+        }
+        #splash-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .splash-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 280px;
+            height: 280px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .tile-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            animation: ringRotate 20s linear infinite;
+        }
+
+        .ring-tile {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin: -1rem 0 0 -0.85rem;
+            width: 1.7rem;
+            height: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tile-box {
+            width: 100%;
+            height: 100%;
+            border: 2px solid var(--accent);
+            border-radius: 4px;
+            box-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
+            background: rgba(20, 20, 20, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--accent);
+            text-shadow: 0 0 6px rgba(212, 175, 55, 0.6);
+            line-height: 1;
+        }
+
+        .tile-box.haku {
+            background: rgba(212, 175, 55, 0.08);
+        }
+
+        .ring-tile:nth-child(1) { transform: rotate(0deg) translate(115px) rotate(0deg); }
+        .ring-tile:nth-child(2) { transform: rotate(51.4deg) translate(115px) rotate(-51.4deg); }
+        .ring-tile:nth-child(3) { transform: rotate(102.8deg) translate(115px) rotate(-102.8deg); }
+        .ring-tile:nth-child(4) { transform: rotate(154.2deg) translate(115px) rotate(-154.2deg); }
+        .ring-tile:nth-child(5) { transform: rotate(205.6deg) translate(115px) rotate(-205.6deg); }
+        .ring-tile:nth-child(6) { transform: rotate(257deg) translate(115px) rotate(-257deg); }
+        .ring-tile:nth-child(7) { transform: rotate(308.4deg) translate(115px) rotate(-308.4deg); }
+
+        .splash-center-content {
+            text-align: center;
+            z-index: 2;
+        }
+
+        .splash-title {
+            font-size: 2.8rem;
+            font-weight: bold;
+            color: var(--accent);
+            letter-spacing: 6px;
+            margin: 0;
+            opacity: 0;
+            transform: scale(0.8);
+            animation: titleZoomIn 0.8s ease forwards 0.3s;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.9), 0 0 20px rgba(212, 175, 55, 0.6);
+            background: linear-gradient(135deg, #fff 0%, var(--accent) 50%, #997a15 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .splash-sub {
+            font-size: 0.75rem;
+            color: #ccc;
+            letter-spacing: 3px;
+            margin-top: 6px;
+            opacity: 0;
+            animation: tileFadeIn 0.8s ease forwards 0.6s;
+            font-weight: 600;
+        }
+
+        @keyframes ringRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes tileFadeIn {
+            to { opacity: 0.9; }
+        }
+
+        @keyframes titleZoomIn {
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* 🀄 ヘッダー */
+        header {
+            background: linear-gradient(180deg, #1f2a24 0%, #121212 100%);
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            border-bottom: 2px solid var(--accent);
+        }
+        .header-inner {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        .logo-img {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--accent);
+        }
+        
+        .main-title {
+            margin: 0;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--accent);
+            letter-spacing: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.8), 0 0 15px rgba(212, 175, 55, 0.5);
+            background: linear-gradient(135deg, #ffffff 0%, var(--accent) 50%, #997a15 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .main-title::before,
+        .main-title::after {
+            content: '';
+            display: inline-block;
+            width: 50px;
+            height: 6px;
+            border-radius: 3px;
+            border: 1px solid var(--accent);
+            box-shadow: 0 0 6px rgba(212, 175, 55, 0.5);
+            background: radial-gradient(circle at center, #e53935 0%, #e53935 2.5px, transparent 3px),
+                        linear-gradient(90deg, #fff 0%, #e6e6e6 100%);
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .container { max-width: 600px; margin: 0 auto; padding: 15px; }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        h2 { font-size: 1.1rem; margin-top: 0; border-left: 4px solid var(--accent); padding-left: 10px; }
+
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-size: 0.85rem; margin-bottom: 5px; color: #bbb; }
+        select, input {
+            background: #2c2c2c;
+            border: 1px solid #444;
+            color: #fff;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        select { width: 100%; }
+
+        .score-input-wrap {
+            display: flex;
+            align-items: center;
+            background: #2c2c2c;
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding-right: 10px;
+        }
+        .score-input-wrap input {
+            border: none;
+            background: transparent;
+            width: 100%;
+            text-align: right;
+            padding-right: 4px;
+        }
+        .score-input-wrap input:focus {
+            outline: none;
+        }
+        .score-unit {
+            color: var(--accent);
+            font-weight: bold;
+            font-size: 0.95rem;
+            white-space: nowrap;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.3s;
+        }
+        .btn:active { opacity: 0.7; }
+        .btn-outline { background: transparent; color: #bbb; border-color: #444; margin-top: 10px; }
+        .btn-danger { color: var(--danger); border-color: var(--danger); }
+
+        .member-tag {
+            display: inline-block;
+            background: #333;
+            padding: 5px 12px;
+            border-radius: 20px;
+            margin: 0 5px 5px 0;
+            font-size: 0.9rem;
+        }
+        .member-count {
+            font-size: 0.75rem;
+            color: var(--accent);
+            margin-left: 4px;
+        }
+        .remove-btn { color: var(--danger); margin-left: 8px; cursor: pointer; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
+        th, td { padding: 10px; text-align: center; border-bottom: 1px solid #333; }
+        th { color: var(--accent); }
+        .pos-pt { color: var(--success); }
+        .neg-pt { color: var(--danger); }
+
+        .grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .input-item { background: #252525; padding: 10px; border-radius: 8px; }
+
+        .rule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        
+        .uma-wrapper {
+            display: grid;
+            gap: 8px;
+            margin-top: 6px;
+        }
+        .uma-wrapper.uma-4 { grid-template-columns: repeat(2, 1fr); }
+        .uma-wrapper.uma-3 { grid-template-columns: repeat(3, 1fr); }
+        .uma-box {
+            display: flex;
+            align-items: center;
+            background: #282828;
+            border: 1px solid #444;
+            border-radius: 6px;
+            padding: 4px 8px;
+        }
+        .uma-label {
+            font-size: 0.8rem;
+            color: var(--accent);
+            font-weight: bold;
+            width: 32px;
+            flex-shrink: 0;
+        }
+        .uma-box input {
+            border: none;
+            background: transparent;
+            padding: 4px;
+            text-align: right;
+            width: 100%;
+            font-size: 0.95rem;
+        }
+        .uma-box input:focus { outline: none; }
+
+        .yakitori-toggle {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 8px;
+            font-size: 0.85rem;
+            color: #ffb74d;
+            cursor: pointer;
+            user-select: none;
+        }
+        .yakitori-toggle input {
+            width: 16px;
+            height: 16px;
+            accent-color: #ff9800;
+            cursor: pointer;
+        }
+
+        .history-item {
+            border-bottom: 1px solid #333;
+            padding: 12px 0;
+            cursor: pointer;
+        }
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .history-info { font-size: 0.8rem; color: #999; }
+        .history-scores { font-size: 0.9rem; font-weight: bold; margin-top: 4px; }
+        .history-details {
+            display: none;
+            margin-top: 10px;
+            background: #282828;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+        .history-details.open { display: block; }
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px 0;
+            border-bottom: 1px dashed #444;
+        }
+        .detail-row:last-child { border-bottom: none; }
+
+        .tournament-badge {
+            background: var(--primary);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            margin-left: 6px;
+        }
+
+        /* 成績タブ */
+        .tab-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #444;
+            padding-bottom: 8px;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 8px;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            color: #aaa;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            transition: 0.2s;
+        }
+        .tab-btn.active {
+            background: var(--primary);
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+
+<!-- 🀄 スプラッシュ画面 -->
+<div id="splash-screen">
+    <div class="splash-container">
+        <div class="tile-ring">
+            <span class="ring-tile"><span class="tile-box">東</span></span>
+            <span class="ring-tile"><span class="tile-box">南</span></span>
+            <span class="ring-tile"><span class="tile-box">西</span></span>
+            <span class="ring-tile"><span class="tile-box">北</span></span>
+            <span class="ring-tile"><span class="tile-box haku"></span></span>
+            <span class="ring-tile"><span class="tile-box">發</span></span>
+            <span class="ring-tile"><span class="tile-box">中</span></span>
+        </div>
+        <div class="splash-center-content">
+            <h1 class="splash-title">松雀</h1>
+            <div class="splash-sub">MAHJONG SCORE</div>
+        </div>
+    </div>
+</div>
+
+<header>
+    <div class="header-inner">
+        <img id="app-logo-img" class="logo-img" alt="logo">
+        <h1 class="main-title">松雀</h1>
+    </div>
+</header>
+
+<div class="container">
+    
+    <!-- 🏆 大会（イベント）設定 -->
+    <section class="card">
+        <h2>大会・イベント管理</h2>
+        <div class="form-group">
+            <label>選択中の大会</label>
+            <select id="currentTournamentSelect" onchange="changeTournament()">
+                <!-- JSで動的生成 -->
+            </select>
+        </div>
+        <div class="form-group" style="display: flex; gap: 10px;">
+            <input type="text" id="newTournamentName" placeholder="新しい大会名を入力" style="width:100%;">
+            <button class="btn" style="width: 100px;" onclick="addTournament()">作成</button>
+        </div>
+        <button class="btn btn-outline btn-danger" style="padding: 6px; font-size: 0.8rem;" onclick="deleteTournament()">選択中の大会を削除</button>
+    </section>
+
+    <!-- 1. メンバー管理 -->
+    <section class="card">
+        <h2>メンバー管理</h2>
+        <div id="memberList" style="margin-bottom: 15px;"></div>
+        <div class="form-group" style="display: flex; gap: 10px;">
+            <input type="text" id="newMemberName" placeholder="名前を入力" style="width:100%;">
+            <button class="btn" style="width: 80px;" onclick="addMember()">追加</button>
+        </div>
+    </section>
+
+    <!-- 2. ルール設定 -->
+    <section class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2>対局設定 <span id="ruleTargetBadge" style="font-size:0.75rem; font-weight:normal; color:var(--accent);"></span></h2>
+            <select id="gameMode" style="width: auto;" onchange="changeMode()">
+                <option value="4">四人麻雀</option>
+                <option value="3">三人麻雀</option>
+            </select>
+        </div>
+        
+        <div class="rule-grid">
+            <div>
+                <label>配給原点</label>
+                <div class="score-input-wrap">
+                    <input type="number" id="ruleStart" onchange="updateRuleCustom()">
+                    <span class="score-unit">00点</span>
+                </div>
+            </div>
+            <div>
+                <label>返し点</label>
+                <div class="score-input-wrap">
+                    <input type="number" id="ruleReturn" onchange="updateRuleCustom()">
+                    <span class="score-unit">00点</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="rule-grid" style="margin-top: 12px;">
+            <div>
+                <label>端数処理（pt）</label>
+                <select id="roundingMode" onchange="updateRuleCustom()">
+                    <option value="56">五捨六入 (Mリーグ・標準)</option>
+                    <option value="45">四捨五入</option>
+                    <option value="down">切り捨て</option>
+                    <option value="up">切り上げ</option>
+                    <option value="none">小数点を残す</option>
+                </select>
+            </div>
+            <div>
+                <label>ヤキトリペナルティ</label>
+                <div class="score-input-wrap">
+                    <input type="number" id="ruleYakitori" onchange="updateRuleCustom()" placeholder="10">
+                    <span class="score-unit">pt</span>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 12px;">
+            <label>ヤキトリ精算方式</label>
+            <select id="ruleYakitoriMode" onchange="updateRuleCustom()">
+                <option value="top">1位が総取り（対象者のペナルティ額を1位へ）</option>
+                <option value="split">各プレイヤーに分配（一人あたり設定ptを全員へ支払う）</option>
+            </select>
+        </div>
+
+        <div style="margin-top: 12px;">
+            <label>ウマ設定 (pt)</label>
+            <div id="umaContainer"></div>
+        </div>
+    </section>
+
+    <!-- 3. スコア入力 -->
+    <section class="card">
+        <h2>スコア入力 <span style="font-size:0.75rem; font-weight:normal; color:#aaa;">(例: 250 ➔ 25,000点)</span></h2>
+        <div id="scoreInputs" class="grid-inputs"></div>
+        <div style="margin-top: 15px;">
+            <div id="totalPointsDisplay" style="text-align: right; font-size: 0.9rem; margin-bottom: 10px;">
+                合計: <span id="currentTotalPoints">0</span> / <span id="targetTotalPoints">100,000</span> 点
+            </div>
+            <button class="btn" onclick="saveGame()">この試合を保存する</button>
+        </div>
+    </section>
+
+    <!-- 4. トータル成績 -->
+    <section class="card">
+        <h2>トータル成績 <span id="statsTournamentName" style="font-size: 0.8rem; font-weight: normal; color: var(--accent);"></span></h2>
+        
+        <!-- 集計範囲切り替えタブ -->
+        <div class="tab-container">
+            <button id="tab-all" class="tab-btn active" onclick="switchStatsTab('all')">全対局</button>
+            <button id="tab-tournament" class="tab-btn" onclick="switchStatsTab('tournament')">大会別</button>
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table id="statsTable">
+                <thead>
+                    <tr>
+                        <th>名前</th>
+                        <th>参加数</th>
+                        <th>参加率</th>
+                        <th>累計pt</th>
+                        <th>平均順位</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 5. 履歴 -->
+    <section class="card">
+        <h2>対局履歴 <span style="font-size:0.75rem; font-weight:normal; color:#aaa;">(タップで点数表示)</span></h2>
+        <div id="historyList"></div>
+        <button class="btn btn-outline btn-danger" onclick="resetAllData()">全データをリセット</button>
+    </section>
+
+</div>
+
+<script>
+    // Canvasを使ってアップロード画像を綺麗なアイコン用Base64に変換して適用
+    function setAppIconImage() {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = function() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 512;
+            canvas.height = 512;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, 512, 512);
+            const dataUrl = canvas.toDataURL('image/png');
+            
+            // iOS用アイコンタグ
+            let appleIcon = document.createElement('link');
+            appleIcon.rel = 'apple-touch-icon';
+            appleIcon.href = dataUrl;
+            document.head.appendChild(appleIcon);
+            
+            // ファビコン
+            let favicon = document.createElement('link');
+            favicon.rel = 'icon';
+            favicon.href = dataUrl;
+            document.head.appendChild(favicon);
+
+            // ヘッダーロゴ
+            const logoImg = document.getElementById('app-logo-img');
+            if (logoImg) logoImg.src = dataUrl;
+        };
+        // 今回添付いただいた画像をアイコンソースとして利用
+        img.src = 'https://i.imgur.com/8Q8N402.png'; 
+    }
+    setAppIconImage();
+
+    const SEATS = ['東家', '南家', '西家', '北家'];
+
+    function getDefaultRules() {
+        return {
+            4: { start: 250, return: 300, uma: [20, 10, -10, -20], rounding: '56', yakitori: 10, yakitoriMode: 'top' },
+            3: { start: 350, return: 400, uma: [20, 0, -20], rounding: '56', yakitori: 10, yakitoriMode: 'top' }
+        };
+    }
+
+    let state = {
+        tournaments: [
+            { id: 'none', name: '大会なし（指定なし）', rules: getDefaultRules() }
+        ],
+        currentTournamentId: 'none',
+        statsTabMode: 'all',
+        members: [], 
+        history: [], 
+        mode: 4
+    };
+
+    function getCurrentRules() {
+        let t = state.tournaments.find(x => x.id === state.currentTournamentId);
+        if (!t) {
+            t = state.tournaments[0];
+        }
+        if (!t.rules) {
+            t.rules = getDefaultRules();
+        }
+        return t.rules;
+    }
+
+    function loadData() {
+        const saved = localStorage.getItem('mahjong_data');
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            if (parsed.tournaments) {
+                state.tournaments = parsed.tournaments;
+                state.tournaments.forEach(t => {
+                    if (!t.rules) t.rules = getDefaultRules();
+                    [3, 4].forEach(m => {
+                        if (!t.rules[m].yakitoriMode) t.rules[m].yakitoriMode = 'top';
+                    });
+                });
+            }
+            if (parsed.currentTournamentId !== undefined) state.currentTournamentId = parsed.currentTournamentId;
+            if (parsed.statsTabMode) state.statsTabMode = parsed.statsTabMode;
+            if (parsed.members) state.members = parsed.members;
+            if (parsed.history) state.history = parsed.history;
+            if (parsed.mode) state.mode = parsed.mode;
+        }
+        document.getElementById('gameMode').value = state.mode;
+        renderAll();
+    }
+
+    function saveData() {
+        localStorage.setItem('mahjong_data', JSON.stringify(state));
+        renderAll();
+    }
+
+    function addTournament() {
+        const input = document.getElementById('newTournamentName');
+        const name = input.value.trim();
+        if (!name) return;
+        const newId = Date.now();
+        state.tournaments.push({ id: newId, name: name, rules: getDefaultRules() });
+        state.currentTournamentId = newId;
+        input.value = '';
+        saveData();
+    }
+
+    function changeTournament() {
+        const sel = document.getElementById('currentTournamentSelect');
+        const val = sel.value;
+        state.currentTournamentId = val === 'none' ? 'none' : parseInt(val);
+        saveData();
+    }
+
+    function deleteTournament() {
+        if (state.currentTournamentId === 'none') {
+            alert('「大会なし（指定なし）」は削除できません');
+            return;
+        }
+        const t = state.tournaments.find(x => x.id === state.currentTournamentId);
+        if (!confirm(`大会「${t.name}」を削除しますか？\n（対局履歴の大会設定は未指定になります）`)) return;
+
+        state.history.forEach(h => {
+            if (h.tournamentId === state.currentTournamentId) {
+                h.tournamentId = 'none';
+            }
+        });
+        state.tournaments = state.tournaments.filter(x => x.id !== state.currentTournamentId);
+        state.currentTournamentId = 'none';
+        saveData();
+    }
+
+    function switchStatsTab(mode) {
+        state.statsTabMode = mode;
+        saveData();
+    }
+
+    function addMember() {
+        const input = document.getElementById('newMemberName');
+        const name = input.value.trim();
+        if (!name) return;
+        state.members.push({ id: Date.now(), name: name });
+        input.value = '';
+        saveData();
+    }
+
+    function removeMember(id) {
+        if (!confirm('このメンバーを削除しますか？（成績データは残ります）')) return;
+        state.members = state.members.filter(m => m.id !== id);
+        saveData();
+    }
+
+    function changeMode() {
+        state.mode = parseInt(document.getElementById('gameMode').value);
+        saveData();
+    }
+
+    function updateRuleCustom() {
+        const rules = getCurrentRules();
+        const mode = state.mode;
+        const start = parseInt(document.getElementById('ruleStart').value) || 0;
+        const ret = parseInt(document.getElementById('ruleReturn').value) || 0;
+        const rounding = document.getElementById('roundingMode').value;
+        const yakitori = parseFloat(document.getElementById('ruleYakitori').value) || 0;
+        const yakitoriMode = document.getElementById('ruleYakitoriMode').value;
+        
+        let uma = [];
+        for (let i = 0; i < mode; i++) {
+            const val = parseFloat(document.getElementById(`uma-${i}`).value) || 0;
+            uma.push(val);
+        }
+
+        rules[mode] = { start: start, return: ret, uma: uma, rounding: rounding, yakitori: yakitori, yakitoriMode: yakitoriMode };
+        saveData();
+    }
+
+    function syncRuleUI() {
+        const rules = getCurrentRules();
+        const rule = rules[state.mode];
+
+        const tObj = state.tournaments.find(t => t.id === state.currentTournamentId);
+        document.getElementById('ruleTargetBadge').innerText = tObj ? `(${tObj.name})` : '';
+
+        document.getElementById('ruleStart').value = rule.start;
+        document.getElementById('ruleReturn').value = rule.return;
+        document.getElementById('roundingMode').value = rule.rounding || '56';
+        document.getElementById('ruleYakitori').value = rule.yakitori !== undefined ? rule.yakitori : 10;
+        document.getElementById('ruleYakitoriMode').value = rule.yakitoriMode || 'top';
+
+        const umaContainer = document.getElementById('umaContainer');
+        umaContainer.className = `uma-wrapper uma-${state.mode}`;
+        
+        let html = '';
+        for (let i = 0; i < state.mode; i++) {
+            html += `
+                <div class="uma-box">
+                    <span class="uma-label">${i + 1}位</span>
+                    <input type="number" id="uma-${i}" value="${rule.uma[i] !== undefined ? rule.uma[i] : 0}" onchange="updateRuleCustom()">
+                </div>
+            `;
+        }
+        umaContainer.innerHTML = html;
+
+        document.getElementById('targetTotalPoints').innerText = (rule.start * 100 * state.mode).toLocaleString();
+    }
+
+    function renderScoreInputs() {
+        const container = document.getElementById('scoreInputs');
+        
+        const currentSelections = [];
+        const currentScores = [];
+        const currentYakitori = [];
+        for (let i = 0; i < state.mode; i++) {
+            const sel = document.getElementById(`p-name-${i}`);
+            const sc = document.getElementById(`p-score-${i}`);
+            const yk = document.getElementById(`p-yakitori-${i}`);
+            currentSelections.push(sel ? sel.value : '');
+            currentScores.push(sc ? sc.value : '');
+            currentYakitori.push(yk ? yk.checked : false);
+        }
+
+        container.innerHTML = '';
+        
+        for (let i = 0; i < state.mode; i++) {
+            const div = document.createElement('div');
+            div.className = 'input-item';
+            
+            let options = state.members.map(m => `<option value="${m.name}">${m.name}</option>`).join('');
+            if (state.members.length === 0) options = '<option value="">(メンバー未登録)</option>';
+
+            div.innerHTML = `
+                <label>${SEATS[i]}</label>
+                <select class="p-name" id="p-name-${i}" style="margin-bottom:8px;">${options}</select>
+                <div class="score-input-wrap">
+                    <input type="number" class="p-score" id="p-score-${i}" placeholder="持ち点" value="${currentScores[i] || ''}" oninput="calcCurrentTotal()">
+                    <span class="score-unit">00点</span>
+                </div>
+                <label class="yakitori-toggle">
+                    <input type="checkbox" id="p-yakitori-${i}" ${currentYakitori[i] ? 'checked' : ''}>
+                    🍗 ヤキトリ
+                </label>
+            `;
+            container.appendChild(div);
+        }
+
+        for (let i = 0; i < state.mode; i++) {
+            const sel = document.getElementById(`p-name-${i}`);
+            if (currentSelections[i] && Array.from(sel.options).some(o => o.value === currentSelections[i])) {
+                sel.value = currentSelections[i];
+            } else if (sel.options[i]) {
+                sel.selectedIndex = i;
+            }
+        }
+        calcCurrentTotal();
+    }
+
+    function calcCurrentTotal() {
+        const rules = getCurrentRules();
+        const rule = rules[state.mode];
+        const scores = document.querySelectorAll('.p-score');
+        let sum = 0;
+        scores.forEach(s => sum += ((parseInt(s.value) || 0) * 100));
+        document.getElementById('currentTotalPoints').innerText = sum.toLocaleString();
+        
+        const target = rule.start * 100 * state.mode;
+        document.getElementById('currentTotalPoints').style.color = (sum === target) ? 'var(--success)' : 'var(--danger)';
+    }
+
+    function applyRounding(rawPt, mode) {
+        if (mode === 'none') {
+            return Math.round(rawPt * 10) / 10;
+        }
+
+        const val = Math.round(rawPt * 1000000) / 1000000;
+        const sign = val < 0 ? -1 : 1;
+        const absVal = Math.abs(val);
+
+        if (mode === 'down') return Math.floor(absVal) * sign;
+        if (mode === 'up') return Math.ceil(absVal) * sign;
+        if (mode === '45') return Math.floor(absVal + 0.5) * sign;
+        if (mode === '56') return Math.floor(absVal + 0.4) * sign;
+
+        return Math.round(val);
+    }
+
+    function saveGame() {
+        const rules = getCurrentRules();
+        const rule = rules[state.mode];
+        const realStart = rule.start * 100;
+        const realReturn = rule.return * 100;
+        const roundingMode = rule.rounding || '56';
+        const yakitoriPenalty = rule.yakitori !== undefined ? rule.yakitori : 10;
+        const yakitoriMode = rule.yakitoriMode || 'top';
+
+        let players = [];
+        let totalInputScore = 0;
+        let selectedNames = [];
+
+        for (let i = 0; i < state.mode; i++) {
+            const name = document.getElementById(`p-name-${i}`).value;
+            const inputScore = parseInt(document.getElementById(`p-score-${i}`).value);
+            const isYakitori = document.getElementById(`p-yakitori-${i}`).checked;
+
+            if (!name || isNaN(inputScore)) {
+                alert('全員の名前とスコアを正しく入力してください');
+                return;
+            }
+            
+            selectedNames.push(name);
+            const realScore = inputScore * 100;
+            players.push({ name, score: realScore, isYakitori });
+            totalInputScore += realScore;
+        }
+
+        // 重複プレイヤーの判定
+        const duplicates = selectedNames.filter((item, index) => selectedNames.indexOf(item) !== index);
+        if (duplicates.length > 0) {
+            const uniqueDuplicates = [...new Set(duplicates)];
+            alert(`同一プレイヤーが複数選択されています。\n（対象: ${uniqueDuplicates.join(', ')}）`);
+            return;
+        }
+
+        if (totalInputScore !== realStart * state.mode) {
+            if (!confirm(`点数合計が合いません（現在:${totalInputScore.toLocaleString()}点）。このまま保存しますか？`)) return;
+        }
+
+        players.sort((a, b) => b.score - a.score);
+
+        const yakitoriCount = players.filter(p => p.isYakitori).length;
+
+        let gameResults = [];
+        let nonTopPtSum = 0;
+
+        for (let index = 1; index < players.length; index++) {
+            const p = players[index];
+            let rawPt = ((p.score - realReturn) / 1000) + rule.uma[index];
+            let roundedPt = applyRounding(rawPt, roundingMode);
+            
+            if (yakitoriMode === 'split') {
+                if (p.isYakitori) {
+                    roundedPt -= (yakitoriPenalty * (state.mode - 1));
+                } else {
+                    roundedPt += (yakitoriPenalty * yakitoriCount);
+                }
+            } else {
+                if (p.isYakitori) {
+                    roundedPt -= yakitoriPenalty;
+                }
+            }
+
+            gameResults.push({ name: p.name, score: p.score, pt: roundedPt, rank: index + 1, isYakitori: p.isYakitori });
+            nonTopPtSum += roundedPt;
+        }
+
+        const topPlayer = players[0];
+        let topPt = 0 - nonTopPtSum;
+        if (roundingMode === 'none') {
+            topPt = Math.round(topPt * 10) / 10;
+        }
+
+        gameResults.unshift({ name: topPlayer.name, score: topPlayer.score, pt: topPt, rank: 1, isYakitori: topPlayer.isYakitori });
+
+        const historyItem = {
+            id: Date.now(),
+            tournamentId: state.currentTournamentId,
+            date: new Date().toLocaleString('ja-JP', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
+            mode: state.mode,
+            results: gameResults
+        };
+
+        state.history.unshift(historyItem);
+        saveData();
+        alert('保存しました');
+        
+        document.querySelectorAll('.p-score').forEach(input => input.value = '');
+        document.querySelectorAll('.yakitori-toggle input').forEach(input => input.checked = false);
+        calcCurrentTotal();
+    }
+
+    function toggleDetails(id, event) {
+        if(event.target.classList.contains('remove-btn')) return;
+        const el = document.getElementById(`details-${id}`);
+        if(el) {
+            el.classList.toggle('open');
+        }
+    }
+
+    function deleteHistory(id) {
+        if (!confirm('この対局結果を削除しますか？')) return;
+        state.history = state.history.filter(h => h.id !== id);
+        saveData();
+    }
+
+    function resetAllData() {
+        if (!confirm('全てのデータ（大会・メンバー・履歴）を削除しますか？')) return;
+        localStorage.removeItem('mahjong_data');
+        location.reload();
+    }
+
+    function renderAll() {
+        const tSelect = document.getElementById('currentTournamentSelect');
+        tSelect.innerHTML = state.tournaments.map(t => 
+            `<option value="${t.id}" ${t.id === state.currentTournamentId ? 'selected' : ''}>${t.name}</option>`
+        ).join('');
+
+        document.getElementById('tab-all').className = `tab-btn ${state.statsTabMode === 'all' ? 'active' : ''}`;
+        document.getElementById('tab-tournament').className = `tab-btn ${state.statsTabMode === 'tournament' ? 'active' : ''}`;
+
+        const currentT = state.tournaments.find(t => t.id === state.currentTournamentId);
+        if (state.statsTabMode === 'all') {
+            document.getElementById('statsTournamentName').innerText = '[ 全対局 ]';
+        } else {
+            document.getElementById('statsTournamentName').innerText = (currentT) ? `[ ${currentT.name} ]` : '';
+        }
+
+        const filteredHistory = state.history.filter(h => {
+            if (state.statsTabMode === 'all') return true;
+            return h.tournamentId === state.currentTournamentId;
+        });
+
+        const totalGamesCount = filteredHistory.length;
+
+        const stats = {};
+        filteredHistory.forEach(h => {
+            h.results.forEach(r => {
+                if (!stats[r.name]) stats[r.name] = { count: 0, pt: 0, rankSum: 0 };
+                stats[r.name].count++;
+                stats[r.name].pt += r.pt;
+                stats[r.name].rankSum += r.rank;
+            });
+        });
+
+        const mList = document.getElementById('memberList');
+        mList.innerHTML = state.members.map(m => {
+            const memberCount = stats[m.name] ? stats[m.name].count : 0;
+            return `
+                <span class="member-tag">
+                    ${m.name}<span class="member-count">(${memberCount}試合)</span>
+                    <span class="remove-btn" onclick="removeMember(${m.id})">×</span>
+                </span>
+            `;
+        }).join('');
+
+        syncRuleUI();
+        renderScoreInputs();
+
+        const statsBody = document.querySelector('#statsTable tbody');
+        const sortedStats = Object.keys(stats).sort((a, b) => stats[b].pt - stats[a].pt);
+        
+        statsBody.innerHTML = sortedStats.map(name => {
+            const s = stats[name];
+            const rate = totalGamesCount > 0 ? ((s.count / totalGamesCount) * 100).toFixed(0) : 0;
+            const formattedPt = Number.isInteger(s.pt) ? s.pt.toString() : s.pt.toFixed(1);
+            return `
+                <tr>
+                    <td>${name}</td>
+                    <td>${s.count} / ${totalGamesCount}</td>
+                    <td>${rate}%</td>
+                    <td class="${s.pt >= 0 ? 'pos-pt' : 'neg-pt'}">${formattedPt}</td>
+                    <td>${(s.rankSum / s.count).toFixed(2)}</td>
+                </tr>
+            `;
+        }).join('');
+
+        const hList = document.getElementById('historyList');
+        hList.innerHTML = state.history.map(h => {
+            const tObj = state.tournaments.find(t => t.id === h.tournamentId);
+            const tournamentBadgeHtml = (tObj && tObj.id !== 'none') ? `<span class="tournament-badge">${tObj.name}</span>` : '';
+            
+            return `
+            <div class="history-item" onclick="toggleDetails(${h.id}, event)">
+                <div class="history-header">
+                    <div>
+                        <div class="history-info">
+                            ${h.date} (${h.mode}人麻雀)
+                            ${tournamentBadgeHtml}
+                        </div>
+                        <div class="history-scores">
+                            ${h.results.map(r => `${r.name}(${r.pt > 0 ? '+' : ''}${r.pt})${r.isYakitori ? '🍗' : ''}`).join(' ')}
+                        </div>
+                    </div>
+                    <div class="remove-btn" onclick="deleteHistory(${h.id})">削除</div>
+                </div>
+                <div class="history-details" id="details-${h.id}">
+                    <div style="font-weight:bold; margin-bottom:5px; color:var(--accent);">持ち点内訳:</div>
+                    ${h.results.map(r => `
+                        <div class="detail-row">
+                            <span>${r.rank}位: ${r.name} ${r.isYakitori ? '🍗(ヤキトリ)' : ''}</span>
+                            <span>${r.score !== undefined ? r.score.toLocaleString() + ' 点' : '記録なし'} (${r.pt > 0 ? '+' : ''}${r.pt}pt)</span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `}).join('');
+    }
+
+    window.onload = () => {
+        loadData();
+
+        setTimeout(() => {
+            const splash = document.getElementById('splash-screen');
+            if (splash) {
+                splash.classList.add('hidden');
+            }
+        }, 3000);
+    };
+</script>
+
+</body>
+</html>
