@@ -43,7 +43,7 @@
             line-height: 1.6;
         }
 
-        /* 🀄 起動画面（字牌7枚回転デザイン） */
+        /* 🀄 起動画面（枠なし・透過デザイン） */
         #splash-screen {
             position: fixed;
             top: 0;
@@ -70,11 +70,10 @@
             align-items: center;
             justify-content: center;
             padding: 55px 65px;
-            border-radius: 28px;
-            background: rgba(11, 43, 34, 0.45);
-            border: 1px solid var(--gold);
-            box-shadow: 0 0 35px rgba(212, 175, 55, 0.2);
-            overflow: hidden;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            overflow: visible;
         }
 
         /* ロゴの周りを回転する麻雀牌コンテナ */
@@ -95,7 +94,7 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* ゴールド枠・ゴールド文字の麻雀牌 */
+        /* 白地・ゴールド枠・ゴールド文字の麻雀牌 */
         .gold-tile {
             position: absolute;
             width: 32px;
@@ -110,7 +109,7 @@
             font-size: 1.15rem;
             font-weight: bold;
             color: var(--gold);
-            text-shadow: 0 1px 1px rgba(0,0,0,0.3);
+            text-shadow: 0 1px 1px rgba(0,0,0,0.2);
         }
 
         /* 円状に字牌7枚（東南西北白發中）を1/7（約51.4deg）ずつ均等配置 */
@@ -442,7 +441,7 @@
             <div class="gold-tile tile-2">南</div>
             <div class="gold-tile tile-3">西</div>
             <div class="gold-tile tile-4">北</div>
-            <div class="gold-tile tile-5">白</div>
+            <div class="gold-tile tile-5"></div>
             <div class="gold-tile tile-6">發</div>
             <div class="gold-tile tile-7">中</div>
         </div>
@@ -584,7 +583,6 @@
 </div>
 
 <script>
-    // 提供画像通りのアイコン生成（深緑背景・金枠・「發」「中」の牌）
     function setupEmbeddedIcon() {
         try {
             const canvas = document.createElement('canvas');
