@@ -43,7 +43,7 @@
             line-height: 1.6;
         }
 
-        /* 🀄 起動画面（枠なし・透過デザイン） */
+        /* 🀄 起動画面（光る麻雀牌デザイン） */
         #splash-screen {
             position: fixed;
             top: 0;
@@ -94,7 +94,7 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* 白地なし・ゴールド枠・ゴールド文字の麻雀牌 */
+        /* 白地なし・ゴールド枠＆文字、さらにふんわり光るグロー効果を追加 */
         .gold-tile {
             position: absolute;
             width: 32px;
@@ -102,13 +102,16 @@
             background: transparent;
             border: 2px solid var(--gold);
             border-radius: 5px;
-            box-shadow: 0 0 6px rgba(212, 175, 55, 0.3);
+            /* 枠と文字の輝き（外側と内側にゴールドの光彩を付与） */
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.6), inset 0 0 5px rgba(212, 175, 55, 0.4);
             display: flex;
             justify-content: center;
             align-items: center;
             font-size: 1.15rem;
             font-weight: bold;
             color: var(--gold);
+            /* 文字自体にも光るエフェクトを適用 */
+            text-shadow: 0 0 8px rgba(243, 229, 171, 0.8), 0 0 12px rgba(212, 175, 55, 0.5);
         }
 
         /* 円状に字牌7枚（東南西北白發中）を1/7（約51.4deg）ずつ均等配置 */
@@ -131,6 +134,7 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 6px;
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
         }
 
         .splash-sub {
