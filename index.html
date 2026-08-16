@@ -43,14 +43,14 @@
             line-height: 1.6;
         }
 
-        /* 🀄 起動画面（7枚のゴールド麻雀牌周回） */
+        /* 🀄 起動画面（ゴールドデザイン） */
         #splash-screen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
-            background: #081410;
+            background: radial-gradient(circle at center, #0e3328 0%, #05140e 100%);
             z-index: 9999;
             display: flex;
             flex-direction: column;
@@ -63,84 +63,35 @@
             visibility: hidden;
         }
 
-        .splash-orbit-container {
-            position: relative;
-            width: 220px;
-            height: 220px;
+        .splash-card {
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-        }
-
-        .splash-logo-center {
-            text-align: center;
-            z-index: 2;
+            justify-content: center;
+            padding: 40px;
+            border-radius: 24px;
+            background: rgba(11, 43, 34, 0.4);
+            border: 1px solid var(--gold);
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.2);
         }
 
         .splash-logo {
-            font-size: 3rem;
+            font-size: 3.5rem;
             font-weight: 300;
-            letter-spacing: 12px;
-            text-indent: 12px;
+            letter-spacing: 16px;
+            text-indent: 16px;
             background: linear-gradient(135deg, #ffffff 0%, var(--gold-light) 40%, var(--gold) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 4px;
+            margin-bottom: 8px;
         }
 
         .splash-sub {
-            font-size: 0.7rem;
+            font-size: 0.8rem;
             color: var(--gold-light);
-            letter-spacing: 4px;
-            text-indent: 4px;
-            opacity: 0.8;
-        }
-
-        /* 牌の周回リング */
-        .tile-orbit {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            animation: rotateOrbit 7s linear infinite;
-        }
-
-        .orbit-tile {
-            position: absolute;
-            width: 28px;
-            height: 38px;
-            background: linear-gradient(135deg, #ffffff 0%, #f5f3e9 100%);
-            border: 1px solid var(--gold);
-            border-radius: 4px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5), inset 0 0 2px rgba(212, 175, 55, 0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-weight: bold;
-            font-size: 1.1rem;
-            top: 50%;
-            left: 50%;
-            margin-top: -19px;
-            margin-left: -14px;
-        }
-
-        .orbit-tile span {
-            background: linear-gradient(135deg, #b8860b 0%, var(--gold) 50%, #8b6508 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .orbit-tile:nth-child(1) { transform: rotate(0deg) translate(95px) rotate(0deg); }
-        .orbit-tile:nth-child(2) { transform: rotate(51.42deg) translate(95px) rotate(-51.42deg); }
-        .orbit-tile:nth-child(3) { transform: rotate(102.85deg) translate(95px) rotate(-102.85deg); }
-        .orbit-tile:nth-child(4) { transform: rotate(154.28deg) translate(95px) rotate(-154.28deg); }
-        .orbit-tile:nth-child(5) { transform: rotate(205.71deg) translate(95px) rotate(-205.71deg); }
-        .orbit-tile:nth-child(6) { transform: rotate(257.14deg) translate(95px) rotate(-257.14deg); }
-        .orbit-tile:nth-child(7) { transform: rotate(308.57deg) translate(95px) rotate(-308.57deg); }
-
-        @keyframes rotateOrbit {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+            letter-spacing: 6px;
+            text-indent: 6px;
+            opacity: 0.85;
         }
 
         /* 🀄 ヘッダー */
@@ -434,20 +385,9 @@
 <body>
 
 <div id="splash-screen">
-    <div class="splash-orbit-container">
-        <div class="tile-orbit">
-            <div class="orbit-tile"><span>東</span></div>
-            <div class="orbit-tile"><span>南</span></div>
-            <div class="orbit-tile"><span>西</span></div>
-            <div class="orbit-tile"><span>北</span></div>
-            <div class="orbit-tile"></div>
-            <div class="orbit-tile"><span>發</span></div>
-            <div class="orbit-tile"><span>中</span></div>
-        </div>
-        <div class="splash-logo-center">
-            <div class="splash-logo">松雀</div>
-            <div class="splash-sub">MAHJONG</div>
-        </div>
+    <div class="splash-card">
+        <div class="splash-logo">松雀</div>
+        <div class="splash-sub">MAHJONG RECORD</div>
     </div>
 </div>
 
@@ -584,7 +524,7 @@
 </div>
 
 <script>
-    // iOS/Webアイコンの安全生成
+    // 提供画像通りのアイコン生成（深緑背景・金枠・「發」「中」の牌）
     function setupEmbeddedIcon() {
         try {
             const canvas = document.createElement('canvas');
@@ -593,29 +533,33 @@
             const ctx = canvas.getContext('2d');
             if (!ctx) return;
 
-            const bgGrad = ctx.createRadialGradient(256, 256, 50, 256, 256, 360);
-            bgGrad.addColorStop(0, '#154738');
-            bgGrad.addColorStop(0.7, '#0b2b22');
-            bgGrad.addColorStop(1, '#081410');
+            // 背景（深緑グラデーション）
+            const bgGrad = ctx.createLinearGradient(0, 0, 512, 512);
+            bgGrad.addColorStop(0, '#0f3d2e');
+            bgGrad.addColorStop(1, '#061a13');
             ctx.fillStyle = bgGrad;
             ctx.fillRect(0, 0, 512, 512);
 
-            ctx.strokeStyle = 'rgba(212, 175, 55, 0.35)';
-            ctx.lineWidth = 12;
+            // 外周の金ライン
+            ctx.strokeStyle = '#d4af37';
+            ctx.lineWidth = 14;
             ctx.strokeRect(18, 18, 476, 476);
 
-            function drawFramedGoldTile(x, y, w, h, angle) {
+            // 牌の描画関数
+            function drawTile(x, y, w, h, angle, kanji) {
                 ctx.save();
                 ctx.translate(x, y);
                 ctx.rotate(angle * Math.PI / 180);
 
+                // 影
                 ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
-                ctx.shadowBlur = 24;
-                ctx.shadowOffsetY = 12;
+                ctx.shadowBlur = 20;
+                ctx.shadowOffsetY = 10;
 
+                // 牌の土台（白系）
                 const tileGrad = ctx.createLinearGradient(-w/2, -h/2, w/2, h/2);
                 tileGrad.addColorStop(0, '#ffffff');
-                tileGrad.addColorStop(1, '#f5f3e9');
+                tileGrad.addColorStop(1, '#f3f0e6');
                 ctx.fillStyle = tileGrad;
 
                 if (ctx.roundRect) {
@@ -626,35 +570,40 @@
                     ctx.fillRect(-w/2, -h/2, w, h);
                 }
 
+                // 影クリア
                 ctx.shadowColor = 'transparent';
-                ctx.strokeStyle = '#d4af37';
+
+                // 外側の金枠
+                ctx.strokeStyle = '#c5a028';
                 ctx.lineWidth = 6;
                 ctx.stroke();
 
-                const innerMargin = 16;
-                const innerW = w - innerMargin * 2;
-                const innerH = h - innerMargin * 2;
-                
-                const innerGrad = ctx.createLinearGradient(-innerW/2, -innerH/2, innerW/2, innerH/2);
-                innerGrad.addColorStop(0, '#b8860b');
-                innerGrad.addColorStop(0.5, '#d4af37');
-                innerGrad.addColorStop(1, '#8b6508');
-
-                ctx.strokeStyle = innerGrad;
-                ctx.lineWidth = 7;
+                // 内側の金二重枠
+                ctx.strokeStyle = '#d4af37';
+                ctx.lineWidth = 4;
+                const m = 12;
                 if (ctx.roundRect) {
                     ctx.beginPath();
-                    ctx.roundRect(-innerW/2, -innerH/2, innerW, innerH, 10);
+                    ctx.roundRect(-w/2 + m, -h/2 + m, w - m*2, h - m*2, 10);
                     ctx.stroke();
                 } else {
-                    ctx.strokeRect(-innerW/2, -innerH/2, innerW, innerH);
+                    ctx.strokeRect(-w/2 + m, -h/2 + m, w - m*2, h - m*2);
                 }
+
+                // 漢字の描画（ゴールド）
+                ctx.fillStyle = '#b38b14';
+                ctx.font = 'bold 110px "Hiragino Sans", "ヒラギノ角ゴ ProN", sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(kanji, 0, 5);
 
                 ctx.restore();
             }
 
-            drawFramedGoldTile(200, 220, 160, 225, -12);
-            drawFramedGoldTile(305, 290, 160, 225, 8);
+            // 奥の「發」牌
+            drawTile(210, 220, 180, 250, -10, '發');
+            // 手前の「中」牌
+            drawTile(310, 295, 180, 250, 8, '中');
 
             const iconDataUrl = canvas.toDataURL('image/png');
             let appleIcon = document.getElementById('apple-touch-icon');
@@ -1101,7 +1050,7 @@
         setTimeout(() => {
             const splash = document.getElementById('splash-screen');
             if (splash) splash.classList.add('hidden');
-        }, 1500);
+        }, 1200);
     };
 </script>
 
