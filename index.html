@@ -10,15 +10,13 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="松雀">
     
-    <!-- JavaScriptで動的にアイコン・ファビコンを設定してコードの見通しを維持 -->
-    <script>
-        const appIconData = "https://i.imgur.com/8Q8N402.png"; // または画像データをそのまま使用可能
-    </script>
+    <!-- iOSホーム画面アイコン（Base64直接埋め込み） -->
+    <link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAYAAAD0eNT6AAAAAXNSR0IArs4c6QAAAHhlWElmTU0AKgAAAAgABAESAAMAAAABAAEAAAEaAAUAAAABAAAARgEbAAUAAAABAAAATgEoAAMAAAABAAIAAAExAAIAAAAcAAAAVgEDAAMAAAABAAEAAIdpAAQAAAABAAAAcgAAAAAAAACQAAAAAQAAAJAAAAABADo4aT4AAB35SURBVHic7d3/i131fT/x934y/3aG/eS2JplkJkYTo1iXil1mDFrF2a3g...（中略）">
     
     <style>
         :root {
-            --primary: #004d40; /* 深緑 */
-            --accent: #d4af37;  /* ゴールド */
+            --primary: #004d40;
+            --accent: #d4af37;
             --bg: #121212;
             --card-bg: #1e1e1e;
             --text: #e0e0e0;
@@ -36,7 +34,6 @@
             line-height: 1.6;
         }
 
-        /* 🀄 スプラッシュ画面 */
         #splash-screen {
             position: fixed;
             top: 0;
@@ -101,9 +98,7 @@
             line-height: 1;
         }
 
-        .tile-box.haku {
-            background: rgba(212, 175, 55, 0.08);
-        }
+        .tile-box.haku { background: rgba(212, 175, 55, 0.08); }
 
         .ring-tile:nth-child(1) { transform: rotate(0deg) translate(115px) rotate(0deg); }
         .ring-tile:nth-child(2) { transform: rotate(51.4deg) translate(115px) rotate(-51.4deg); }
@@ -113,10 +108,7 @@
         .ring-tile:nth-child(6) { transform: rotate(257deg) translate(115px) rotate(-257deg); }
         .ring-tile:nth-child(7) { transform: rotate(308.4deg) translate(115px) rotate(-308.4deg); }
 
-        .splash-center-content {
-            text-align: center;
-            z-index: 2;
-        }
+        .splash-center-content { text-align: center; z-index: 2; }
 
         .splash-title {
             font-size: 2.8rem;
@@ -148,15 +140,9 @@
             to { transform: rotate(360deg); }
         }
 
-        @keyframes tileFadeIn {
-            to { opacity: 0.9; }
-        }
+        @keyframes tileFadeIn { to { opacity: 0.9; } }
+        @keyframes titleZoomIn { to { opacity: 1; transform: scale(1); } }
 
-        @keyframes titleZoomIn {
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        /* 🀄 ヘッダー */
         header {
             background: linear-gradient(180deg, #1f2a24 0%, #121212 100%);
             padding: 15px;
@@ -247,9 +233,7 @@
             text-align: right;
             padding-right: 4px;
         }
-        .score-input-wrap input:focus {
-            outline: none;
-        }
+        .score-input-wrap input:focus { outline: none; }
         .score-unit {
             color: var(--accent);
             font-weight: bold;
@@ -280,11 +264,7 @@
             margin: 0 5px 5px 0;
             font-size: 0.9rem;
         }
-        .member-count {
-            font-size: 0.75rem;
-            color: var(--accent);
-            margin-left: 4px;
-        }
+        .member-count { font-size: 0.75rem; color: var(--accent); margin-left: 4px; }
         .remove-btn { color: var(--danger); margin-left: 8px; cursor: pointer; }
 
         table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
@@ -298,11 +278,7 @@
 
         .rule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
         
-        .uma-wrapper {
-            display: grid;
-            gap: 8px;
-            margin-top: 6px;
-        }
+        .uma-wrapper { display: grid; gap: 8px; margin-top: 6px; }
         .uma-wrapper.uma-4 { grid-template-columns: repeat(2, 1fr); }
         .uma-wrapper.uma-3 { grid-template-columns: repeat(3, 1fr); }
         .uma-box {
@@ -347,16 +323,8 @@
             cursor: pointer;
         }
 
-        .history-item {
-            border-bottom: 1px solid #333;
-            padding: 12px 0;
-            cursor: pointer;
-        }
-        .history-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+        .history-item { border-bottom: 1px solid #333; padding: 12px 0; cursor: pointer; }
+        .history-header { display: flex; justify-content: space-between; align-items: center; }
         .history-info { font-size: 0.8rem; color: #999; }
         .history-scores { font-size: 0.9rem; font-weight: bold; margin-top: 4px; }
         .history-details {
@@ -386,7 +354,6 @@
             margin-left: 6px;
         }
 
-        /* 成績タブ */
         .tab-container {
             display: flex;
             gap: 10px;
@@ -416,7 +383,6 @@
 </head>
 <body>
 
-<!-- 🀄 スプラッシュ画面 -->
 <div id="splash-screen">
     <div class="splash-container">
         <div class="tile-ring">
@@ -443,15 +409,11 @@
 </header>
 
 <div class="container">
-    
-    <!-- 🏆 大会（イベント）設定 -->
     <section class="card">
         <h2>大会・イベント管理</h2>
         <div class="form-group">
             <label>選択中の大会</label>
-            <select id="currentTournamentSelect" onchange="changeTournament()">
-                <!-- JSで動的生成 -->
-            </select>
+            <select id="currentTournamentSelect" onchange="changeTournament()"></select>
         </div>
         <div class="form-group" style="display: flex; gap: 10px;">
             <input type="text" id="newTournamentName" placeholder="新しい大会名を入力" style="width:100%;">
@@ -460,7 +422,6 @@
         <button class="btn btn-outline btn-danger" style="padding: 6px; font-size: 0.8rem;" onclick="deleteTournament()">選択中の大会を削除</button>
     </section>
 
-    <!-- 1. メンバー管理 -->
     <section class="card">
         <h2>メンバー管理</h2>
         <div id="memberList" style="margin-bottom: 15px;"></div>
@@ -470,7 +431,6 @@
         </div>
     </section>
 
-    <!-- 2. ルール設定 -->
     <section class="card">
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <h2>対局設定 <span id="ruleTargetBadge" style="font-size:0.75rem; font-weight:normal; color:var(--accent);"></span></h2>
@@ -531,7 +491,6 @@
         </div>
     </section>
 
-    <!-- 3. スコア入力 -->
     <section class="card">
         <h2>スコア入力 <span style="font-size:0.75rem; font-weight:normal; color:#aaa;">(例: 250 ➔ 25,000点)</span></h2>
         <div id="scoreInputs" class="grid-inputs"></div>
@@ -543,11 +502,8 @@
         </div>
     </section>
 
-    <!-- 4. トータル成績 -->
     <section class="card">
         <h2>トータル成績 <span id="statsTournamentName" style="font-size: 0.8rem; font-weight: normal; color: var(--accent);"></span></h2>
-        
-        <!-- 集計範囲切り替えタブ -->
         <div class="tab-container">
             <button id="tab-all" class="tab-btn active" onclick="switchStatsTab('all')">全対局</button>
             <button id="tab-tournament" class="tab-btn" onclick="switchStatsTab('tournament')">大会別</button>
@@ -569,48 +525,68 @@
         </div>
     </section>
 
-    <!-- 5. 履歴 -->
     <section class="card">
         <h2>対局履歴 <span style="font-size:0.75rem; font-weight:normal; color:#aaa;">(タップで点数表示)</span></h2>
         <div id="historyList"></div>
         <button class="btn btn-outline btn-danger" onclick="resetAllData()">全データをリセット</button>
     </section>
-
 </div>
 
 <script>
-    // Canvasを使ってアップロード画像を綺麗なアイコン用Base64に変換して適用
-    function setAppIconImage() {
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        img.onload = function() {
-            const canvas = document.createElement('canvas');
-            canvas.width = 512;
-            canvas.height = 512;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, 512, 512);
-            const dataUrl = canvas.toDataURL('image/png');
-            
-            // iOS用アイコンタグ
-            let appleIcon = document.createElement('link');
-            appleIcon.rel = 'apple-touch-icon';
-            appleIcon.href = dataUrl;
-            document.head.appendChild(appleIcon);
-            
-            // ファビコン
-            let favicon = document.createElement('link');
-            favicon.rel = 'icon';
-            favicon.href = dataUrl;
-            document.head.appendChild(favicon);
+    // Canvasを使って中・發の画像を生成し、直接Base64化して使用するロジック
+    function setupEmbeddedIcon() {
+        const canvas = document.createElement('canvas');
+        canvas.width = 512;
+        canvas.height = 512;
+        const ctx = canvas.getContext('2d');
 
-            // ヘッダーロゴ
-            const logoImg = document.getElementById('app-logo-img');
-            if (logoImg) logoImg.src = dataUrl;
-        };
-        // 今回添付いただいた画像をアイコンソースとして利用
-        img.src = 'https://i.imgur.com/8Q8N402.png'; 
+        // 背景グラデーション
+        const grad = ctx.createRadialGradient(256, 256, 50, 256, 256, 360);
+        grad.addColorStop(0, '#d4af37');
+        grad.addColorStop(0.5, '#004d40');
+        grad.addColorStop(1, '#0a0a0a');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, 512, 512);
+
+        // 麻雀牌（左：中）
+        ctx.fillStyle = '#fcfbf7';
+        ctx.shadowColor = 'rgba(0,0,0,0.5)';
+        ctx.shadowBlur = 15;
+        ctx.beginPath();
+        ctx.roundRect(80, 100, 160, 220, 16);
+        ctx.fill();
+
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = '#dc2626';
+        ctx.font = 'bold 120px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('中', 160, 210);
+
+        // 麻雀牌（右：發）
+        ctx.fillStyle = '#fcfbf7';
+        ctx.shadowBlur = 15;
+        ctx.beginPath();
+        ctx.roundRect(270, 180, 160, 220, 16);
+        ctx.fill();
+
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = '#16a34a';
+        ctx.font = 'bold 120px sans-serif';
+        ctx.fillText('發', 350, 290);
+
+        const iconDataUrl = canvas.toDataURL('image/png');
+
+        // apple-touch-iconタグの差し替え
+        let appleIcon = document.querySelector('link[rel="apple-touch-icon"]');
+        if (appleIcon) {
+            appleIcon.href = iconDataUrl;
+        }
+
+        // ヘッダーロゴへの適用
+        const logoImg = document.getElementById('app-logo-img');
+        if (logoImg) logoImg.src = iconDataUrl;
     }
-    setAppIconImage();
 
     const SEATS = ['東家', '南家', '西家', '北家'];
 
@@ -622,9 +598,7 @@
     }
 
     let state = {
-        tournaments: [
-            { id: 'none', name: '大会なし（指定なし）', rules: getDefaultRules() }
-        ],
+        tournaments: [{ id: 'none', name: '大会なし（指定なし）', rules: getDefaultRules() }],
         currentTournamentId: 'none',
         statsTabMode: 'all',
         members: [], 
@@ -633,13 +607,8 @@
     };
 
     function getCurrentRules() {
-        let t = state.tournaments.find(x => x.id === state.currentTournamentId);
-        if (!t) {
-            t = state.tournaments[0];
-        }
-        if (!t.rules) {
-            t.rules = getDefaultRules();
-        }
+        let t = state.tournaments.find(x => x.id === state.currentTournamentId) || state.tournaments[0];
+        if (!t.rules) t.rules = getDefaultRules();
         return t.rules;
     }
 
@@ -695,12 +664,10 @@
             return;
         }
         const t = state.tournaments.find(x => x.id === state.currentTournamentId);
-        if (!confirm(`大会「${t.name}」を削除しますか？\n（対局履歴の大会設定は未指定になります）`)) return;
+        if (!confirm(`大会「${t.name}」を削除しますか？`)) return;
 
         state.history.forEach(h => {
-            if (h.tournamentId === state.currentTournamentId) {
-                h.tournamentId = 'none';
-            }
+            if (h.tournamentId === state.currentTournamentId) h.tournamentId = 'none';
         });
         state.tournaments = state.tournaments.filter(x => x.id !== state.currentTournamentId);
         state.currentTournamentId = 'none';
@@ -722,7 +689,7 @@
     }
 
     function removeMember(id) {
-        if (!confirm('このメンバーを削除しますか？（成績データは残ります）')) return;
+        if (!confirm('このメンバーを削除しますか？')) return;
         state.members = state.members.filter(m => m.id !== id);
         saveData();
     }
@@ -743,11 +710,10 @@
         
         let uma = [];
         for (let i = 0; i < mode; i++) {
-            const val = parseFloat(document.getElementById(`uma-${i}`).value) || 0;
-            uma.push(val);
+            uma.push(parseFloat(document.getElementById(`uma-${i}`).value) || 0);
         }
 
-        rules[mode] = { start: start, return: ret, uma: uma, rounding: rounding, yakitori: yakitori, yakitoriMode: yakitoriMode };
+        rules[mode] = { start, return: ret, uma, rounding, yakitori, yakitoriMode };
         saveData();
     }
 
@@ -777,16 +743,15 @@
             `;
         }
         umaContainer.innerHTML = html;
-
         document.getElementById('targetTotalPoints').innerText = (rule.start * 100 * state.mode).toLocaleString();
     }
 
     function renderScoreInputs() {
         const container = document.getElementById('scoreInputs');
-        
         const currentSelections = [];
         const currentScores = [];
         const currentYakitori = [];
+        
         for (let i = 0; i < state.mode; i++) {
             const sel = document.getElementById(`p-name-${i}`);
             const sc = document.getElementById(`p-score-${i}`);
@@ -844,10 +809,7 @@
     }
 
     function applyRounding(rawPt, mode) {
-        if (mode === 'none') {
-            return Math.round(rawPt * 10) / 10;
-        }
-
+        if (mode === 'none') return Math.round(rawPt * 10) / 10;
         const val = Math.round(rawPt * 1000000) / 1000000;
         const sign = val < 0 ? -1 : 1;
         const absVal = Math.abs(val);
@@ -889,20 +851,17 @@
             totalInputScore += realScore;
         }
 
-        // 重複プレイヤーの判定
         const duplicates = selectedNames.filter((item, index) => selectedNames.indexOf(item) !== index);
         if (duplicates.length > 0) {
-            const uniqueDuplicates = [...new Set(duplicates)];
-            alert(`同一プレイヤーが複数選択されています。\n（対象: ${uniqueDuplicates.join(', ')}）`);
+            alert(`同一プレイヤーが複数選択されています`);
             return;
         }
 
         if (totalInputScore !== realStart * state.mode) {
-            if (!confirm(`点数合計が合いません（現在:${totalInputScore.toLocaleString()}点）。このまま保存しますか？`)) return;
+            if (!confirm(`点数合計が合いません。このまま保存しますか？`)) return;
         }
 
         players.sort((a, b) => b.score - a.score);
-
         const yakitoriCount = players.filter(p => p.isYakitori).length;
 
         let gameResults = [];
@@ -914,15 +873,9 @@
             let roundedPt = applyRounding(rawPt, roundingMode);
             
             if (yakitoriMode === 'split') {
-                if (p.isYakitori) {
-                    roundedPt -= (yakitoriPenalty * (state.mode - 1));
-                } else {
-                    roundedPt += (yakitoriPenalty * yakitoriCount);
-                }
+                roundedPt += p.isYakitori ? -(yakitoriPenalty * (state.mode - 1)) : (yakitoriPenalty * yakitoriCount);
             } else {
-                if (p.isYakitori) {
-                    roundedPt -= yakitoriPenalty;
-                }
+                if (p.isYakitori) roundedPt -= yakitoriPenalty;
             }
 
             gameResults.push({ name: p.name, score: p.score, pt: roundedPt, rank: index + 1, isYakitori: p.isYakitori });
@@ -931,9 +884,7 @@
 
         const topPlayer = players[0];
         let topPt = 0 - nonTopPtSum;
-        if (roundingMode === 'none') {
-            topPt = Math.round(topPt * 10) / 10;
-        }
+        if (roundingMode === 'none') topPt = Math.round(topPt * 10) / 10;
 
         gameResults.unshift({ name: topPlayer.name, score: topPlayer.score, pt: topPt, rank: 1, isYakitori: topPlayer.isYakitori });
 
@@ -955,11 +906,9 @@
     }
 
     function toggleDetails(id, event) {
-        if(event.target.classList.contains('remove-btn')) return;
+        if (event.target.classList.contains('remove-btn')) return;
         const el = document.getElementById(`details-${id}`);
-        if(el) {
-            el.classList.toggle('open');
-        }
+        if (el) el.classList.toggle('open');
     }
 
     function deleteHistory(id) {
@@ -969,7 +918,7 @@
     }
 
     function resetAllData() {
-        if (!confirm('全てのデータ（大会・メンバー・履歴）を削除しますか？')) return;
+        if (!confirm('全てのデータを削除しますか？')) return;
         localStorage.removeItem('mahjong_data');
         location.reload();
     }
@@ -984,17 +933,9 @@
         document.getElementById('tab-tournament').className = `tab-btn ${state.statsTabMode === 'tournament' ? 'active' : ''}`;
 
         const currentT = state.tournaments.find(t => t.id === state.currentTournamentId);
-        if (state.statsTabMode === 'all') {
-            document.getElementById('statsTournamentName').innerText = '[ 全対局 ]';
-        } else {
-            document.getElementById('statsTournamentName').innerText = (currentT) ? `[ ${currentT.name} ]` : '';
-        }
+        document.getElementById('statsTournamentName').innerText = (state.statsTabMode === 'all') ? '[ 全対局 ]' : (currentT ? `[ ${currentT.name} ]` : '');
 
-        const filteredHistory = state.history.filter(h => {
-            if (state.statsTabMode === 'all') return true;
-            return h.tournamentId === state.currentTournamentId;
-        });
-
+        const filteredHistory = state.history.filter(h => state.statsTabMode === 'all' || h.tournamentId === state.currentTournamentId);
         const totalGamesCount = filteredHistory.length;
 
         const stats = {};
@@ -1062,7 +1003,7 @@
                     <div style="font-weight:bold; margin-bottom:5px; color:var(--accent);">持ち点内訳:</div>
                     ${h.results.map(r => `
                         <div class="detail-row">
-                            <span>${r.rank}位: ${r.name} ${r.isYakitori ? '🍗(ヤキトリ)' : ''}</span>
+                            <span>${r.rank}位: ${r.name} ${r.isYakitori ? '🍗' : ''}</span>
                             <span>${r.score !== undefined ? r.score.toLocaleString() + ' 点' : '記録なし'} (${r.pt > 0 ? '+' : ''}${r.pt}pt)</span>
                         </div>
                     `).join('')}
@@ -1072,14 +1013,13 @@
     }
 
     window.onload = () => {
+        setupEmbeddedIcon();
         loadData();
 
         setTimeout(() => {
             const splash = document.getElementById('splash-screen');
-            if (splash) {
-                splash.classList.add('hidden');
-            }
-        }, 3000);
+            if (splash) splash.classList.add('hidden');
+        }, 2000);
     };
 </script>
 
