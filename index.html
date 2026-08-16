@@ -94,22 +94,21 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* 白地・ゴールド枠・ゴールド文字の麻雀牌 */
+        /* 白地なし・ゴールド枠・ゴールド文字の麻雀牌 */
         .gold-tile {
             position: absolute;
             width: 32px;
             height: 44px;
-            background: linear-gradient(135deg, #ffffff 0%, #f3f0e6 100%);
+            background: transparent;
             border: 2px solid var(--gold);
             border-radius: 5px;
-            box-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
+            box-shadow: 0 0 6px rgba(212, 175, 55, 0.3);
             display: flex;
             justify-content: center;
             align-items: center;
             font-size: 1.15rem;
             font-weight: bold;
             color: var(--gold);
-            text-shadow: 0 1px 1px rgba(0,0,0,0.2);
         }
 
         /* 円状に字牌7枚（東南西北白發中）を1/7（約51.4deg）ずつ均等配置 */
@@ -606,41 +605,17 @@
                 ctx.translate(x, y);
                 ctx.rotate(angle * Math.PI / 180);
 
-                ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
-                ctx.shadowBlur = 20;
-                ctx.shadowOffsetY = 10;
-
-                const tileGrad = ctx.createLinearGradient(-w/2, -h/2, w/2, h/2);
-                tileGrad.addColorStop(0, '#ffffff');
-                tileGrad.addColorStop(1, '#f3f0e6');
-                ctx.fillStyle = tileGrad;
-
+                ctx.strokeStyle = '#d4af37';
+                ctx.lineWidth = 6;
                 if (ctx.roundRect) {
                     ctx.beginPath();
                     ctx.roundRect(-w/2, -h/2, w, h, 20);
-                    ctx.fill();
-                } else {
-                    ctx.fillRect(-w/2, -h/2, w, h);
-                }
-
-                ctx.shadowColor = 'transparent';
-
-                ctx.strokeStyle = '#c5a028';
-                ctx.lineWidth = 6;
-                ctx.stroke();
-
-                ctx.strokeStyle = '#d4af37';
-                ctx.lineWidth = 4;
-                const m = 12;
-                if (ctx.roundRect) {
-                    ctx.beginPath();
-                    ctx.roundRect(-w/2 + m, -h/2 + m, w - m*2, h - m*2, 10);
                     ctx.stroke();
                 } else {
-                    ctx.strokeRect(-w/2 + m, -h/2 + m, w - m*2, h - m*2);
+                    ctx.strokeRect(-w/2, -h/2, w, h);
                 }
 
-                ctx.fillStyle = '#b38b14';
+                ctx.fillStyle = '#d4af37';
                 ctx.font = 'bold 110px "Hiragino Sans", "ヒラギノ角ゴ ProN", sans-serif';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
