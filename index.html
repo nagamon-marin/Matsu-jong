@@ -42,7 +42,7 @@
             line-height: 1.6;
         }
 
-        /* 🀄 スプラッシュ画面 */
+        /* 🀄 起動画面（スプラッシュ） */
         #splash-screen {
             position: fixed;
             top: 0;
@@ -51,6 +51,10 @@
             height: 100vh;
             background: #081410;
             z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
             transition: opacity 0.8s ease, visibility 0.8s ease;
         }
         #splash-screen.hidden {
@@ -58,97 +62,37 @@
             visibility: hidden;
         }
 
-        .splash-container {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 280px;
-            height: 280px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .tile-ring {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            animation: ringRotate 24s linear infinite;
-        }
-
-        .ring-tile {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            margin: -1rem 0 0 -0.85rem;
-            width: 1.7rem;
-            height: 2.2rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .tile-box {
-            width: 100%;
-            height: 100%;
-            border: 1px solid var(--gold);
-            border-radius: 4px;
-            box-shadow: 0 0 10px rgba(212, 175, 55, 0.25);
-            background: rgba(15, 23, 20, 0.8);
-            backdrop-filter: blur(4px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: var(--gold-light);
-        }
-
-        .ring-tile:nth-child(1) { transform: rotate(0deg) translate(115px) rotate(0deg); }
-        .ring-tile:nth-child(2) { transform: rotate(51.4deg) translate(115px) rotate(-51.4deg); }
-        .ring-tile:nth-child(3) { transform: rotate(102.8deg) translate(115px) rotate(-102.8deg); }
-        .ring-tile:nth-child(4) { transform: rotate(154.2deg) translate(115px) rotate(-154.2deg); }
-        .ring-tile:nth-child(5) { transform: rotate(205.6deg) translate(115px) rotate(-205.6deg); }
-        .ring-tile:nth-child(6) { transform: rotate(257deg) translate(115px) rotate(-257deg); }
-        .ring-tile:nth-child(7) { transform: rotate(308.4deg) translate(115px) rotate(-308.4deg); }
-
-        .splash-center-content { text-align: center; z-index: 2; }
-
-        .splash-title {
-            font-size: 3rem;
+        .splash-logo {
+            font-size: 3.5rem;
             font-weight: 300;
-            color: var(--gold);
             letter-spacing: 12px;
-            margin: 0;
-            opacity: 0;
-            transform: translateY(10px);
-            animation: titleFadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.3s;
+            text-indent: 12px;
             background: linear-gradient(135deg, #ffffff 0%, var(--gold-light) 40%, var(--gold) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+            animation: titleFadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
         .splash-sub {
-            font-size: 0.7rem;
-            color: var(--text-sub);
-            letter-spacing: 5px;
-            margin-top: 8px;
-            opacity: 0;
-            animation: tileFadeIn 0.8s ease forwards 0.6s;
+            font-size: 0.75rem;
+            color: var(--gold-light);
+            letter-spacing: 6px;
+            text-indent: 6px;
+            opacity: 0.8;
         }
 
-        @keyframes ringRotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes tileFadeIn { to { opacity: 0.8; } }
-        @keyframes titleFadeUp { to { opacity: 1; transform: translateY(0); } }
+        @keyframes titleFadeUp { 
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-        /* 🀄 ヘッダー（ロゴ削除・洗練デザイン） */
+        /* 🀄 ヘッダー（千点棒デザイン復元） */
         header {
             background: rgba(13, 15, 18, 0.85);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            padding: 20px 15px;
+            padding: 18px 15px;
             text-align: center;
             position: sticky;
             top: 0;
@@ -156,18 +100,44 @@
             border-bottom: 1px solid var(--border-color);
         }
 
+        .header-title-wrap {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
         .main-title {
             margin: 0;
             font-size: 1.6rem;
             font-weight: 400;
             letter-spacing: 8px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
             background: linear-gradient(135deg, #ffffff 0%, var(--gold-light) 50%, var(--gold) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             text-indent: 8px;
+        }
+
+        /* 千点棒アイコン（1本点棒モチーフ） */
+        .tenbou-icon {
+            width: 32px;
+            height: 8px;
+            background: linear-gradient(180deg, #ffffff 0%, #e0e0e0 100%);
+            border-radius: 4px;
+            position: relative;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.8);
+            display: inline-block;
+        }
+        .tenbou-icon::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 5px;
+            height: 5px;
+            background-color: var(--danger);
+            border-radius: 50%;
         }
 
         .container { max-width: 620px; margin: 0 auto; padding: 20px 15px; }
@@ -407,25 +377,16 @@
 <body>
 
 <div id="splash-screen">
-    <div class="splash-container">
-        <div class="tile-ring">
-            <span class="ring-tile"><span class="tile-box">東</span></span>
-            <span class="ring-tile"><span class="tile-box">南</span></span>
-            <span class="ring-tile"><span class="tile-box">西</span></span>
-            <span class="ring-tile"><span class="tile-box">北</span></span>
-            <span class="ring-tile"><span class="tile-box">白</span></span>
-            <span class="ring-tile"><span class="tile-box">發</span></span>
-            <span class="ring-tile"><span class="tile-box">中</span></span>
-        </div>
-        <div class="splash-center-content">
-            <h1 class="splash-title">松雀</h1>
-            <div class="splash-sub">MAHJONG SCORE</div>
-        </div>
-    </div>
+    <div class="splash-logo">松雀</div>
+    <div class="splash-sub">MAHJONG SCORE</div>
 </div>
 
 <header>
-    <h1 class="main-title">松雀</h1>
+    <div class="header-title-wrap">
+        <span class="tenbou-icon"></span>
+        <h1 class="main-title">松雀</h1>
+        <span class="tenbou-icon"></span>
+    </div>
 </header>
 
 <div class="container">
@@ -553,57 +514,81 @@
 </div>
 
 <script>
-    // アイコン画像（背景グラデーション＋中・發の麻雀牌）を直接Canvas描画しBase64化
+    // アイコン画像（立体的なリアル＆オシャレな麻雀牌「中・發」）を生成
     function setupEmbeddedIcon() {
         const canvas = document.createElement('canvas');
         canvas.width = 512;
         canvas.height = 512;
         const ctx = canvas.getContext('2d');
 
-        // 高級感ある深緑背景
-        const grad = ctx.createRadialGradient(256, 256, 40, 256, 256, 360);
-        grad.addColorStop(0, '#154738');
-        grad.addColorStop(0.7, '#0b2b22');
-        grad.addColorStop(1, '#05140f');
-        ctx.fillStyle = grad;
+        // 背景：深みのある高級ダークグリーン
+        const bgGrad = ctx.createRadialGradient(256, 256, 50, 256, 256, 360);
+        bgGrad.addColorStop(0, '#1a4e3d');
+        bgGrad.addColorStop(0.7, '#0b2b22');
+        bgGrad.addColorStop(1, '#05120d');
+        ctx.fillStyle = bgGrad;
         ctx.fillRect(0, 0, 512, 512);
 
-        // ゴールドフレーム
-        ctx.strokeStyle = '#d4af37';
-        ctx.lineWidth = 12;
-        ctx.strokeRect(16, 16, 480, 480);
+        // ゴールド枠線
+        ctx.strokeStyle = 'rgba(212, 175, 55, 0.4)';
+        ctx.lineWidth = 14;
+        ctx.strokeRect(20, 20, 472, 472);
 
-        // 左牌：中
-        ctx.fillStyle = '#fcfbf7';
-        ctx.shadowColor = 'rgba(0,0,0,0.6)';
-        ctx.shadowBlur = 20;
-        ctx.shadowOffsetY = 10;
-        ctx.beginPath();
-        ctx.roundRect(85, 110, 160, 230, 18);
-        ctx.fill();
+        // 牌の描画関数（立体感・角度付き）
+        function draw3DTile(x, y, w, h, angle, char, charColor) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(angle * Math.PI / 180);
 
-        ctx.shadowBlur = 0;
-        ctx.shadowOffsetY = 0;
-        ctx.fillStyle = '#e53935';
-        ctx.font = 'bold 125px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('中', 165, 225);
+            // 1. 牌の影
+            ctx.shadowColor = 'rgba(0,0,0,0.6)';
+            ctx.shadowBlur = 25;
+            ctx.shadowOffsetX = 12;
+            ctx.shadowOffsetY = 18;
 
-        // 右牌：發
-        ctx.fillStyle = '#fcfbf7';
-        ctx.shadowColor = 'rgba(0,0,0,0.6)';
-        ctx.shadowBlur = 20;
-        ctx.shadowOffsetY = 10;
-        ctx.beginPath();
-        ctx.roundRect(267, 172, 160, 230, 18);
-        ctx.fill();
+            // 2. 牌の背層（竹模様風グリーン側面）
+            ctx.fillStyle = '#0b5239';
+            ctx.beginPath();
+            ctx.roundRect(-w/2 + 12, -h/2 + 12, w, h, 20);
+            ctx.fill();
 
-        ctx.shadowBlur = 0;
-        ctx.shadowOffsetY = 0;
-        ctx.fillStyle = '#2e7d32';
-        ctx.font = 'bold 125px sans-serif';
-        ctx.fillText('發', 347, 287);
+            ctx.shadowColor = 'transparent'; // 影をリセット
+
+            // 3. 牌の表面（アイボリーホワイト・微グラデーション）
+            const tileGrad = ctx.createLinearGradient(-w/2, -h/2, w/2, h/2);
+            tileGrad.addColorStop(0, '#ffffff');
+            tileGrad.addColorStop(0.8, '#f5f3e9');
+            tileGrad.addColorStop(1, '#e3decb');
+            ctx.fillStyle = tileGrad;
+            ctx.beginPath();
+            ctx.roundRect(-w/2, -h/2, w, h, 20);
+            ctx.fill();
+
+            // 牌の表面内枠線（リアルな掘り込み感）
+            ctx.strokeStyle = 'rgba(0,0,0,0.06)';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.roundRect(-w/2 + 8, -h/2 + 8, w - 16, h - 16, 14);
+            ctx.stroke();
+
+            // 4. 文字描画
+            ctx.fillStyle = charColor;
+            ctx.font = 'bold 130px "Hiragino Sans", "SF Pro Text", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.shadowColor = 'rgba(0,0,0,0.15)';
+            ctx.shadowBlur = 4;
+            ctx.shadowOffsetY = 2;
+            ctx.fillText(char, 0, 5);
+
+            ctx.restore();
+        }
+
+        // 奥の牌（發）: 少し左上、反時計回りに傾ける
+        draw3DTile(200, 220, 160, 225, -12, '發', '#1b5e20');
+
+        // 手前の牌（中）: 少し右下、時計回りに傾けて重ねる
+        draw3DTile(305, 290, 160, 225, 8, '中', '#d32f2f');
 
         const iconDataUrl = canvas.toDataURL('image/png');
 
@@ -1042,7 +1027,7 @@
         setTimeout(() => {
             const splash = document.getElementById('splash-screen');
             if (splash) splash.classList.add('hidden');
-        }, 1800);
+        }, 1200);
     };
 </script>
 
