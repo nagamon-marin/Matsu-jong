@@ -10,7 +10,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="松雀">
     
-    <!-- iOSホーム画面アイコン -->
+    <!-- iOSホーム画面アイコン & ファビコン -->
     <link rel="apple-touch-icon" id="apple-touch-icon" href="">
     <link rel="icon" id="favicon" href="">
     
@@ -122,9 +122,6 @@
             left: 50%;
             margin-top: -19px;
             margin-left: -14px;
-            
-            /* ゴールド文字表現 */
-            background-clip: padding-box;
         }
 
         .orbit-tile span {
@@ -133,12 +130,12 @@
             -webkit-text-fill-color: transparent;
         }
 
-        /* 7枚の牌を等間隔（360deg ÷ 7 ≒ 51.42deg）に配置 */
+        /* 7枚の牌を配置 */
         .orbit-tile:nth-child(1) { transform: rotate(0deg) translate(95px) rotate(0deg); }
         .orbit-tile:nth-child(2) { transform: rotate(51.42deg) translate(95px) rotate(-51.42deg); }
         .orbit-tile:nth-child(3) { transform: rotate(102.85deg) translate(95px) rotate(-102.85deg); }
         .orbit-tile:nth-child(4) { transform: rotate(154.28deg) translate(95px) rotate(-154.28deg); }
-        .orbit-tile:nth-child(5) { transform: rotate(205.71deg) translate(95px) rotate(-205.71deg); } /* 白（無地） */
+        .orbit-tile:nth-child(5) { transform: rotate(205.71deg) translate(95px) rotate(-205.71deg); } /* 白 */
         .orbit-tile:nth-child(6) { transform: rotate(257.14deg) translate(95px) rotate(-257.14deg); } /* 發 */
         .orbit-tile:nth-child(7) { transform: rotate(308.57deg) translate(95px) rotate(-308.57deg); } /* 中 */
 
@@ -586,6 +583,7 @@
 </div>
 
 <script>
+    /* スプラッシュ画面の立体ゴールド牌デザインをCanvasアイコンとして精密再現 */
     function setupEmbeddedIcon() {
         try {
             const canvas = document.createElement('canvas');
@@ -593,68 +591,67 @@
             canvas.height = 512;
             const ctx = canvas.getContext('2d');
 
+            // 背景グラデーション（ダークグリーン背景）
             const bgGrad = ctx.createRadialGradient(256, 256, 50, 256, 256, 360);
-            bgGrad.addColorStop(0, '#1a4e3d');
+            bgGrad.addColorStop(0, '#154738');
             bgGrad.addColorStop(0.7, '#0b2b22');
-            bgGrad.addColorStop(1, '#05120d');
+            bgGrad.addColorStop(1, '#081410');
             ctx.fillStyle = bgGrad;
             ctx.fillRect(0, 0, 512, 512);
 
-            ctx.strokeStyle = 'rgba(212, 175, 55, 0.4)';
-            ctx.lineWidth = 14;
-            ctx.strokeRect(20, 20, 472, 472);
+            // ゴールドの外枠線
+            ctx.strokeStyle = 'rgba(212, 175, 55, 0.35)';
+            ctx.lineWidth = 12;
+            ctx.strokeRect(18, 18, 476, 476);
 
-            function draw3DTile(x, y, w, h, angle, char) {
+            // スプラッシュ画面と同仕様のゴールド牌描画関数
+            function drawGoldTile(x, y, w, h, angle, char) {
                 ctx.save();
                 ctx.translate(x, y);
                 ctx.rotate(angle * Math.PI / 180);
 
-                ctx.shadowColor = 'rgba(0,0,0,0.6)';
-                ctx.shadowBlur = 25;
-                ctx.shadowOffsetX = 12;
-                ctx.shadowOffsetY = 18;
+                // 牌のドロップシドウ
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
+                ctx.shadowBlur = 24;
+                ctx.shadowOffsetY = 12;
 
-                ctx.fillStyle = '#0b5239';
-                ctx.beginPath();
-                ctx.roundRect(-w/2 + 12, -h/2 + 12, w, h, 20);
-                ctx.fill();
-
-                ctx.shadowColor = 'transparent';
-
+                // 牌のベース（ホワイト〜淡いベージュ）
                 const tileGrad = ctx.createLinearGradient(-w/2, -h/2, w/2, h/2);
                 tileGrad.addColorStop(0, '#ffffff');
-                tileGrad.addColorStop(0.8, '#f5f3e9');
-                tileGrad.addColorStop(1, '#e3decb');
+                tileGrad.addColorStop(1, '#f5f3e9');
                 ctx.fillStyle = tileGrad;
+
                 ctx.beginPath();
-                ctx.roundRect(-w/2, -h/2, w, h, 20);
+                ctx.roundRect(-w/2, -h/2, w, h, 18);
                 ctx.fill();
 
+                ctx.shadowColor = 'transparent'; // 陰影リセット
+
+                // 牌のゴールドの枠線 (border: 1px solid var(--gold))
                 ctx.strokeStyle = '#d4af37';
-                ctx.lineWidth = 4;
-                ctx.beginPath();
-                ctx.roundRect(-w/2 + 8, -h/2 + 8, w - 16, h - 16, 14);
+                ctx.lineWidth = 5;
                 ctx.stroke();
 
-                const goldTextGrad = ctx.createLinearGradient(0, -60, 0, 60);
-                goldTextGrad.addColorStop(0, '#b8860b');
-                goldTextGrad.addColorStop(0.5, '#d4af37');
-                goldTextGrad.addColorStop(1, '#8b6508');
-                ctx.fillStyle = goldTextGrad;
+                // 牌の文字描画（ゴールド文字グラデーション再現）
+                if (char) {
+                    const textGrad = ctx.createLinearGradient(0, -h/3, 0, h/3);
+                    textGrad.addColorStop(0, '#b8860b');
+                    textGrad.addColorStop(0.5, '#d4af37');
+                    textGrad.addColorStop(1, '#8b6508');
+                    ctx.fillStyle = textGrad;
 
-                ctx.font = 'bold 130px "Hiragino Sans", "SF Pro Text", sans-serif';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.shadowColor = 'rgba(0,0,0,0.15)';
-                ctx.shadowBlur = 4;
-                ctx.shadowOffsetY = 2;
-                ctx.fillText(char, 0, 5);
+                    ctx.font = 'bold 120px "Hiragino Sans", "SF Pro Display", sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(char, 0, 4);
+                }
 
                 ctx.restore();
             }
 
-            draw3DTile(200, 220, 160, 225, -12, '發');
-            draw3DTile(305, 290, 160, 225, 8, '中');
+            // スプラッシュ画面の象徴「發」「中」のゴールド牌をレイアウト配置
+            drawGoldTile(200, 220, 160, 225, -12, '發');
+            drawGoldTile(305, 290, 160, 225, 8, '中');
 
             const iconDataUrl = canvas.toDataURL('image/png');
 
