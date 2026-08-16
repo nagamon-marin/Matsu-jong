@@ -144,7 +144,7 @@
             to { transform: rotate(360deg); }
         }
 
-        /* 🀄 ヘッダー（千点棒デザイン） */
+        /* 🀄 ヘッダー（和モダン和紙風千点棒デザイン） */
         header {
             background: rgba(13, 15, 18, 0.85);
             backdrop-filter: blur(12px);
@@ -161,7 +161,7 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
+            gap: 14px;
         }
 
         .main-title {
@@ -175,25 +175,29 @@
             text-indent: 8px;
         }
 
+        /* 和モダン象牙×漆朱赤の高級千点棒 */
         .tenbou-icon {
-            width: 32px;
-            height: 8px;
-            background: linear-gradient(180deg, #ffffff 0%, #e0e0e0 100%);
-            border-radius: 4px;
+            width: 38px;
+            height: 7px;
+            background: linear-gradient(180deg, #ffffff 0%, #e8e3d5 50%, #d8d0bc 100%);
+            border-radius: 3px;
             position: relative;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.8);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.9), inset 0 -1px 1px rgba(0,0,0,0.2);
             display: inline-block;
+            border: 1px solid rgba(212, 175, 55, 0.4);
         }
+        /* 中央の朱赤ポッチ（金縁の二重環） */
         .tenbou-icon::after {
             content: '';
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 5px;
-            height: 5px;
-            background-color: var(--danger);
+            width: 4px;
+            height: 4px;
+            background: radial-gradient(circle, #e53935 0%, #b71c1c 100%);
             border-radius: 50%;
+            box-shadow: 0 0 0 1px #d4af37, 0 0 3px rgba(229, 57, 53, 0.8);
         }
 
         .container { max-width: 620px; margin: 0 auto; padding: 20px 15px; }
@@ -583,7 +587,7 @@
 </div>
 
 <script>
-    /* スプラッシュ画面の立体ゴールド牌デザインをCanvasアイコンとして精密再現 */
+    /* ゴールドの枠の中にゴールドの枠をレイアウト配置して麻雀牌を表現するアイコン生成 */
     function setupEmbeddedIcon() {
         try {
             const canvas = document.createElement('canvas');
@@ -604,8 +608,8 @@
             ctx.lineWidth = 12;
             ctx.strokeRect(18, 18, 476, 476);
 
-            // スプラッシュ画面と同仕様のゴールド牌描画関数
-            function drawGoldTile(x, y, w, h, angle, char) {
+            // ゴールド二重枠のみで麻雀牌を描く関数
+            function drawFramedGoldTile(x, y, w, h, angle) {
                 ctx.save();
                 ctx.translate(x, y);
                 ctx.rotate(angle * Math.PI / 180);
@@ -622,36 +626,38 @@
                 ctx.fillStyle = tileGrad;
 
                 ctx.beginPath();
-                ctx.roundRect(-w/2, -h/2, w, h, 18);
+                ctx.roundRect(-w/2, -h/2, w, h, 20);
                 ctx.fill();
 
                 ctx.shadowColor = 'transparent'; // 陰影リセット
 
-                // 牌のゴールドの枠線 (border: 1px solid var(--gold))
+                // 外側のゴールド枠線
                 ctx.strokeStyle = '#d4af37';
-                ctx.lineWidth = 5;
+                ctx.lineWidth = 6;
                 ctx.stroke();
 
-                // 牌の文字描画（ゴールド文字グラデーション再現）
-                if (char) {
-                    const textGrad = ctx.createLinearGradient(0, -h/3, 0, h/3);
-                    textGrad.addColorStop(0, '#b8860b');
-                    textGrad.addColorStop(0.5, '#d4af37');
-                    textGrad.addColorStop(1, '#8b6508');
-                    ctx.fillStyle = textGrad;
+                // 内側のゴールド枠線（ゴールドの枠で囲うだけ）
+                const innerMargin = 16;
+                const innerW = w - innerMargin * 2;
+                const innerH = h - innerMargin * 2;
+                
+                const innerGrad = ctx.createLinearGradient(-innerW/2, -innerH/2, innerW/2, innerH/2);
+                innerGrad.addColorStop(0, '#b8860b');
+                innerGrad.addColorStop(0.5, '#d4af37');
+                innerGrad.addColorStop(1, '#8b6508');
 
-                    ctx.font = 'bold 120px "Hiragino Sans", "SF Pro Display", sans-serif';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.fillText(char, 0, 4);
-                }
+                ctx.strokeStyle = innerGrad;
+                ctx.lineWidth = 7;
+                ctx.beginPath();
+                ctx.roundRect(-innerW/2, -innerH/2, innerW, innerH, 10);
+                ctx.stroke();
 
                 ctx.restore();
             }
 
-            // スプラッシュ画面の象徴「發」「中」のゴールド牌をレイアウト配置
-            drawGoldTile(200, 220, 160, 225, -12, '發');
-            drawGoldTile(305, 290, 160, 225, 8, '中');
+            // 2枚のゴールド二重枠牌を美しく配置
+            drawFramedGoldTile(200, 220, 160, 225, -12);
+            drawFramedGoldTile(305, 290, 160, 225, 8);
 
             const iconDataUrl = canvas.toDataURL('image/png');
 
