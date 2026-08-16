@@ -130,21 +130,20 @@
             -webkit-text-fill-color: transparent;
         }
 
-        /* 7枚の牌を配置 */
         .orbit-tile:nth-child(1) { transform: rotate(0deg) translate(95px) rotate(0deg); }
         .orbit-tile:nth-child(2) { transform: rotate(51.42deg) translate(95px) rotate(-51.42deg); }
         .orbit-tile:nth-child(3) { transform: rotate(102.85deg) translate(95px) rotate(-102.85deg); }
         .orbit-tile:nth-child(4) { transform: rotate(154.28deg) translate(95px) rotate(-154.28deg); }
-        .orbit-tile:nth-child(5) { transform: rotate(205.71deg) translate(95px) rotate(-205.71deg); } /* 白 */
-        .orbit-tile:nth-child(6) { transform: rotate(257.14deg) translate(95px) rotate(-257.14deg); } /* 發 */
-        .orbit-tile:nth-child(7) { transform: rotate(308.57deg) translate(95px) rotate(-308.57deg); } /* 中 */
+        .orbit-tile:nth-child(5) { transform: rotate(205.71deg) translate(95px) rotate(-205.71deg); }
+        .orbit-tile:nth-child(6) { transform: rotate(257.14deg) translate(95px) rotate(-257.14deg); }
+        .orbit-tile:nth-child(7) { transform: rotate(308.57deg) translate(95px) rotate(-308.57deg); }
 
         @keyframes rotateOrbit {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
         }
 
-        /* 🀄 ヘッダー（和モダン和紙風千点棒デザイン） */
+        /* 🀄 ヘッダー */
         header {
             background: rgba(13, 15, 18, 0.85);
             backdrop-filter: blur(12px);
@@ -175,7 +174,6 @@
             text-indent: 8px;
         }
 
-        /* 和モダン象牙×漆朱赤の高級千点棒 */
         .tenbou-icon {
             width: 38px;
             height: 7px;
@@ -186,7 +184,6 @@
             display: inline-block;
             border: 1px solid rgba(212, 175, 55, 0.4);
         }
-        /* 中央の朱赤ポッチ（金縁の二重環） */
         .tenbou-icon::after {
             content: '';
             position: absolute;
@@ -443,7 +440,7 @@
             <div class="orbit-tile"><span>南</span></div>
             <div class="orbit-tile"><span>西</span></div>
             <div class="orbit-tile"><span>北</span></div>
-            <div class="orbit-tile"></div> <!-- 白（無地） -->
+            <div class="orbit-tile"></div>
             <div class="orbit-tile"><span>發</span></div>
             <div class="orbit-tile"><span>中</span></div>
         </div>
@@ -587,15 +584,15 @@
 </div>
 
 <script>
-    /* ゴールドの枠の中にゴールドの枠をレイアウト配置して麻雀牌を表現するアイコン生成 */
+    // iOS/Webアイコンの安全生成
     function setupEmbeddedIcon() {
         try {
             const canvas = document.createElement('canvas');
             canvas.width = 512;
             canvas.height = 512;
             const ctx = canvas.getContext('2d');
+            if (!ctx) return;
 
-            // 背景グラデーション（ダークグリーン背景）
             const bgGrad = ctx.createRadialGradient(256, 256, 50, 256, 256, 360);
             bgGrad.addColorStop(0, '#154738');
             bgGrad.addColorStop(0.7, '#0b2b22');
@@ -603,40 +600,37 @@
             ctx.fillStyle = bgGrad;
             ctx.fillRect(0, 0, 512, 512);
 
-            // ゴールドの外枠線
             ctx.strokeStyle = 'rgba(212, 175, 55, 0.35)';
             ctx.lineWidth = 12;
             ctx.strokeRect(18, 18, 476, 476);
 
-            // ゴールド二重枠のみで麻雀牌を描く関数
             function drawFramedGoldTile(x, y, w, h, angle) {
                 ctx.save();
                 ctx.translate(x, y);
                 ctx.rotate(angle * Math.PI / 180);
 
-                // 牌のドロップシドウ
                 ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
                 ctx.shadowBlur = 24;
                 ctx.shadowOffsetY = 12;
 
-                // 牌のベース（ホワイト〜淡いベージュ）
                 const tileGrad = ctx.createLinearGradient(-w/2, -h/2, w/2, h/2);
                 tileGrad.addColorStop(0, '#ffffff');
                 tileGrad.addColorStop(1, '#f5f3e9');
                 ctx.fillStyle = tileGrad;
 
-                ctx.beginPath();
-                ctx.roundRect(-w/2, -h/2, w, h, 20);
-                ctx.fill();
+                if (ctx.roundRect) {
+                    ctx.beginPath();
+                    ctx.roundRect(-w/2, -h/2, w, h, 20);
+                    ctx.fill();
+                } else {
+                    ctx.fillRect(-w/2, -h/2, w, h);
+                }
 
-                ctx.shadowColor = 'transparent'; // 陰影リセット
-
-                // 外側のゴールド枠線
+                ctx.shadowColor = 'transparent';
                 ctx.strokeStyle = '#d4af37';
                 ctx.lineWidth = 6;
                 ctx.stroke();
 
-                // 内側のゴールド枠線（ゴールドの枠で囲うだけ）
                 const innerMargin = 16;
                 const innerW = w - innerMargin * 2;
                 const innerH = h - innerMargin * 2;
@@ -648,26 +642,27 @@
 
                 ctx.strokeStyle = innerGrad;
                 ctx.lineWidth = 7;
-                ctx.beginPath();
-                ctx.roundRect(-innerW/2, -innerH/2, innerW, innerH, 10);
-                ctx.stroke();
+                if (ctx.roundRect) {
+                    ctx.beginPath();
+                    ctx.roundRect(-innerW/2, -innerH/2, innerW, innerH, 10);
+                    ctx.stroke();
+                } else {
+                    ctx.strokeRect(-innerW/2, -innerH/2, innerW, innerH);
+                }
 
                 ctx.restore();
             }
 
-            // 2枚のゴールド二重枠牌を美しく配置
             drawFramedGoldTile(200, 220, 160, 225, -12);
             drawFramedGoldTile(305, 290, 160, 225, 8);
 
             const iconDataUrl = canvas.toDataURL('image/png');
-
             let appleIcon = document.getElementById('apple-touch-icon');
             if (appleIcon) appleIcon.href = iconDataUrl;
-
             let favicon = document.getElementById('favicon');
             if (favicon) favicon.href = iconDataUrl;
         } catch(e) {
-            console.error("Icon generate failed:", e);
+            console.error("Icon generate error:", e);
         }
     }
 
@@ -696,23 +691,27 @@
     }
 
     function loadData() {
-        const saved = localStorage.getItem('mahjong_data');
-        if (saved) {
-            const parsed = JSON.parse(saved);
-            if (parsed.tournaments) {
-                state.tournaments = parsed.tournaments;
-                state.tournaments.forEach(t => {
-                    if (!t.rules) t.rules = getDefaultRules();
-                    [3, 4].forEach(m => {
-                        if (!t.rules[m].yakitoriMode) t.rules[m].yakitoriMode = 'top';
+        try {
+            const saved = localStorage.getItem('mahjong_data');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                if (parsed.tournaments) {
+                    state.tournaments = parsed.tournaments;
+                    state.tournaments.forEach(t => {
+                        if (!t.rules) t.rules = getDefaultRules();
+                        [3, 4].forEach(m => {
+                            if (!t.rules[m].yakitoriMode) t.rules[m].yakitoriMode = 'top';
+                        });
                     });
-                });
+                }
+                if (parsed.currentTournamentId !== undefined) state.currentTournamentId = parsed.currentTournamentId;
+                if (parsed.statsTabMode) state.statsTabMode = parsed.statsTabMode;
+                if (parsed.members) state.members = parsed.members;
+                if (parsed.history) state.history = parsed.history;
+                if (parsed.mode) state.mode = parsed.mode;
             }
-            if (parsed.currentTournamentId !== undefined) state.currentTournamentId = parsed.currentTournamentId;
-            if (parsed.statsTabMode) state.statsTabMode = parsed.statsTabMode;
-            if (parsed.members) state.members = parsed.members;
-            if (parsed.history) state.history = parsed.history;
-            if (parsed.mode) state.mode = parsed.mode;
+        } catch(e) {
+            console.error("Load error:", e);
         }
         document.getElementById('gameMode').value = state.mode;
         renderAll();
