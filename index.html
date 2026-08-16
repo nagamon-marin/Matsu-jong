@@ -43,7 +43,7 @@
             line-height: 1.6;
         }
 
-        /* 🀄 起動画面（ゴールドデザイン） */
+        /* 🀄 起動画面（字牌7枚回転デザイン） */
         #splash-screen {
             position: fixed;
             top: 0;
@@ -64,33 +64,84 @@
         }
 
         .splash-card {
+            position: relative;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 40px;
-            border-radius: 24px;
-            background: rgba(11, 43, 34, 0.4);
+            padding: 55px 65px;
+            border-radius: 28px;
+            background: rgba(11, 43, 34, 0.45);
             border: 1px solid var(--gold);
-            box-shadow: 0 0 30px rgba(212, 175, 55, 0.2);
+            box-shadow: 0 0 35px rgba(212, 175, 55, 0.2);
+            overflow: hidden;
         }
 
+        /* ロゴの周りを回転する麻雀牌コンテナ */
+        .rotating-tiles-ring {
+            position: absolute;
+            width: 220px;
+            height: 220px;
+            top: 50%;
+            left: 50%;
+            margin-top: -110px;
+            margin-left: -110px;
+            pointer-events: none;
+            animation: spinRing 12s linear infinite;
+        }
+
+        @keyframes spinRing {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* ゴールド枠・ゴールド文字の麻雀牌 */
+        .gold-tile {
+            position: absolute;
+            width: 32px;
+            height: 44px;
+            background: linear-gradient(135deg, #ffffff 0%, #f3f0e6 100%);
+            border: 2px solid var(--gold);
+            border-radius: 5px;
+            box-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.15rem;
+            font-weight: bold;
+            color: var(--gold);
+            text-shadow: 0 1px 1px rgba(0,0,0,0.3);
+        }
+
+        /* 円状に字牌7枚（東南西北白發中）を1/7（約51.4deg）ずつ均等配置 */
+        .tile-1 { top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(0deg) translateY(-100px) rotate(0deg); }
+        .tile-2 { top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(51.4deg) translateY(-100px) rotate(-51.4deg); }
+        .tile-3 { top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(102.8deg) translateY(-100px) rotate(-102.8deg); }
+        .tile-4 { top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(154.2deg) translateY(-100px) rotate(-154.2deg); }
+        .tile-5 { top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(205.7deg) translateY(-100px) rotate(-205.7deg); }
+        .tile-6 { top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(257.1deg) translateY(-100px) rotate(-257.1deg); }
+        .tile-7 { top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(308.5deg) translateY(-100px) rotate(-308.5deg); }
+
         .splash-logo {
-            font-size: 3.5rem;
+            position: relative;
+            z-index: 2;
+            font-size: 2.6rem;
             font-weight: 300;
-            letter-spacing: 16px;
-            text-indent: 16px;
+            letter-spacing: 12px;
+            text-indent: 12px;
             background: linear-gradient(135deg, #ffffff 0%, var(--gold-light) 40%, var(--gold) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
         .splash-sub {
-            font-size: 0.8rem;
+            position: relative;
+            z-index: 2;
+            font-size: 0.75rem;
             color: var(--gold-light);
-            letter-spacing: 6px;
-            text-indent: 6px;
+            letter-spacing: 5px;
+            text-indent: 5px;
             opacity: 0.85;
         }
 
@@ -386,6 +437,15 @@
 
 <div id="splash-screen">
     <div class="splash-card">
+        <div class="rotating-tiles-ring">
+            <div class="gold-tile tile-1">東</div>
+            <div class="gold-tile tile-2">南</div>
+            <div class="gold-tile tile-3">西</div>
+            <div class="gold-tile tile-4">北</div>
+            <div class="gold-tile tile-5">白</div>
+            <div class="gold-tile tile-6">發</div>
+            <div class="gold-tile tile-7">中</div>
+        </div>
         <div class="splash-logo">松雀</div>
         <div class="splash-sub">MAHJONG RECORD</div>
     </div>
@@ -533,30 +593,25 @@
             const ctx = canvas.getContext('2d');
             if (!ctx) return;
 
-            // 背景（深緑グラデーション）
             const bgGrad = ctx.createLinearGradient(0, 0, 512, 512);
             bgGrad.addColorStop(0, '#0f3d2e');
             bgGrad.addColorStop(1, '#061a13');
             ctx.fillStyle = bgGrad;
             ctx.fillRect(0, 0, 512, 512);
 
-            // 外周の金ライン
             ctx.strokeStyle = '#d4af37';
             ctx.lineWidth = 14;
             ctx.strokeRect(18, 18, 476, 476);
 
-            // 牌の描画関数
             function drawTile(x, y, w, h, angle, kanji) {
                 ctx.save();
                 ctx.translate(x, y);
                 ctx.rotate(angle * Math.PI / 180);
 
-                // 影
                 ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
                 ctx.shadowBlur = 20;
                 ctx.shadowOffsetY = 10;
 
-                // 牌の土台（白系）
                 const tileGrad = ctx.createLinearGradient(-w/2, -h/2, w/2, h/2);
                 tileGrad.addColorStop(0, '#ffffff');
                 tileGrad.addColorStop(1, '#f3f0e6');
@@ -570,15 +625,12 @@
                     ctx.fillRect(-w/2, -h/2, w, h);
                 }
 
-                // 影クリア
                 ctx.shadowColor = 'transparent';
 
-                // 外側の金枠
                 ctx.strokeStyle = '#c5a028';
                 ctx.lineWidth = 6;
                 ctx.stroke();
 
-                // 内側の金二重枠
                 ctx.strokeStyle = '#d4af37';
                 ctx.lineWidth = 4;
                 const m = 12;
@@ -590,7 +642,6 @@
                     ctx.strokeRect(-w/2 + m, -h/2 + m, w - m*2, h - m*2);
                 }
 
-                // 漢字の描画（ゴールド）
                 ctx.fillStyle = '#b38b14';
                 ctx.font = 'bold 110px "Hiragino Sans", "ヒラギノ角ゴ ProN", sans-serif';
                 ctx.textAlign = 'center';
@@ -600,9 +651,7 @@
                 ctx.restore();
             }
 
-            // 奥の「發」牌
             drawTile(210, 220, 180, 250, -10, '發');
-            // 手前の「中」牌
             drawTile(310, 295, 180, 250, 8, '中');
 
             const iconDataUrl = canvas.toDataURL('image/png');
@@ -1050,7 +1099,7 @@
         setTimeout(() => {
             const splash = document.getElementById('splash-screen');
             if (splash) splash.classList.add('hidden');
-        }, 1200);
+        }, 3000);
     };
 </script>
 
