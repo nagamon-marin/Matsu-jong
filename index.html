@@ -43,7 +43,7 @@
             line-height: 1.6;
         }
 
-        /* 🀄 起動画面（7枚牌周回アニメーション完全復元） */
+        /* 🀄 起動画面（7枚のゴールド麻雀牌周回） */
         #splash-screen {
             position: fixed;
             top: 0;
@@ -110,18 +110,27 @@
             width: 28px;
             height: 38px;
             background: linear-gradient(135deg, #ffffff 0%, #f5f3e9 100%);
+            border: 1px solid var(--gold);
             border-radius: 4px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5), inset 0 0 2px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5), inset 0 0 2px rgba(212, 175, 55, 0.5);
             display: flex;
             justify-content: center;
             align-items: center;
             font-weight: bold;
             font-size: 1.1rem;
-            color: #2c3e50;
             top: 50%;
             left: 50%;
             margin-top: -19px;
             margin-left: -14px;
+            
+            /* ゴールド文字表現 */
+            background-clip: padding-box;
+        }
+
+        .orbit-tile span {
+            background: linear-gradient(135deg, #b8860b 0%, var(--gold) 50%, #8b6508 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         /* 7枚の牌を等間隔（360deg ÷ 7 ≒ 51.42deg）に配置 */
@@ -130,8 +139,8 @@
         .orbit-tile:nth-child(3) { transform: rotate(102.85deg) translate(95px) rotate(-102.85deg); }
         .orbit-tile:nth-child(4) { transform: rotate(154.28deg) translate(95px) rotate(-154.28deg); }
         .orbit-tile:nth-child(5) { transform: rotate(205.71deg) translate(95px) rotate(-205.71deg); } /* 白（無地） */
-        .orbit-tile:nth-child(6) { transform: rotate(257.14deg) translate(95px) rotate(-257.14deg); color: #1b5e20; } /* 發 */
-        .orbit-tile:nth-child(7) { transform: rotate(308.57deg) translate(95px) rotate(-308.57deg); color: #d32f2f; } /* 中 */
+        .orbit-tile:nth-child(6) { transform: rotate(257.14deg) translate(95px) rotate(-257.14deg); } /* 發 */
+        .orbit-tile:nth-child(7) { transform: rotate(308.57deg) translate(95px) rotate(-308.57deg); } /* 中 */
 
         @keyframes rotateOrbit {
             from { transform: rotate(0deg); }
@@ -169,7 +178,6 @@
             text-indent: 8px;
         }
 
-        /* 千点棒アイコン（1本点棒モチーフ） */
         .tenbou-icon {
             width: 32px;
             height: 8px;
@@ -430,13 +438,13 @@
 <div id="splash-screen">
     <div class="splash-orbit-container">
         <div class="tile-orbit">
-            <div class="orbit-tile">東</div>
-            <div class="orbit-tile">南</div>
-            <div class="orbit-tile">西</div>
-            <div class="orbit-tile">北</div>
+            <div class="orbit-tile"><span>東</span></div>
+            <div class="orbit-tile"><span>南</span></div>
+            <div class="orbit-tile"><span>西</span></div>
+            <div class="orbit-tile"><span>北</span></div>
             <div class="orbit-tile"></div> <!-- 白（無地） -->
-            <div class="orbit-tile">發</div>
-            <div class="orbit-tile">中</div>
+            <div class="orbit-tile"><span>發</span></div>
+            <div class="orbit-tile"><span>中</span></div>
         </div>
         <div class="splash-logo-center">
             <div class="splash-logo">松雀</div>
@@ -578,7 +586,6 @@
 </div>
 
 <script>
-    // ホーム画面用アイコン（立体的なリアル麻雀牌デザイン）
     function setupEmbeddedIcon() {
         try {
             const canvas = document.createElement('canvas');
@@ -597,7 +604,7 @@
             ctx.lineWidth = 14;
             ctx.strokeRect(20, 20, 472, 472);
 
-            function draw3DTile(x, y, w, h, angle, char, charColor) {
+            function draw3DTile(x, y, w, h, angle, char) {
                 ctx.save();
                 ctx.translate(x, y);
                 ctx.rotate(angle * Math.PI / 180);
@@ -623,13 +630,18 @@
                 ctx.roundRect(-w/2, -h/2, w, h, 20);
                 ctx.fill();
 
-                ctx.strokeStyle = 'rgba(0,0,0,0.06)';
-                ctx.lineWidth = 3;
+                ctx.strokeStyle = '#d4af37';
+                ctx.lineWidth = 4;
                 ctx.beginPath();
                 ctx.roundRect(-w/2 + 8, -h/2 + 8, w - 16, h - 16, 14);
                 ctx.stroke();
 
-                ctx.fillStyle = charColor;
+                const goldTextGrad = ctx.createLinearGradient(0, -60, 0, 60);
+                goldTextGrad.addColorStop(0, '#b8860b');
+                goldTextGrad.addColorStop(0.5, '#d4af37');
+                goldTextGrad.addColorStop(1, '#8b6508');
+                ctx.fillStyle = goldTextGrad;
+
                 ctx.font = 'bold 130px "Hiragino Sans", "SF Pro Text", sans-serif';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
@@ -641,8 +653,8 @@
                 ctx.restore();
             }
 
-            draw3DTile(200, 220, 160, 225, -12, '發', '#1b5e20');
-            draw3DTile(305, 290, 160, 225, 8, '中', '#d32f2f');
+            draw3DTile(200, 220, 160, 225, -12, '發');
+            draw3DTile(305, 290, 160, 225, 8, '中');
 
             const iconDataUrl = canvas.toDataURL('image/png');
 
