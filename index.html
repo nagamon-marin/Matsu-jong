@@ -10,8 +10,9 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="松雀">
     
-    <!-- iOSホーム画面アイコンプレースホルダー -->
-    <link rel="apple-touch-icon" href="">
+    <!-- iOSホーム画面アイコン -->
+    <link rel="apple-touch-icon" id="apple-touch-icon" href="">
+    <link rel="icon" id="favicon" href="">
     
     <style>
         :root {
@@ -87,7 +88,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* 🀄 ヘッダー（千点棒デザイン復元） */
+        /* 🀄 ヘッダー（千点棒デザイン復元＆不要なアイコン削除） */
         header {
             background: rgba(13, 15, 18, 0.85);
             backdrop-filter: blur(12px);
@@ -514,86 +515,93 @@
 </div>
 
 <script>
-    // アイコン画像（立体的なリアル＆オシャレな麻雀牌「中・發」）を生成
+    // ホーム画面用アイコン（立体的なリアル麻雀牌デザイン）の確実な動的生成
     function setupEmbeddedIcon() {
-        const canvas = document.createElement('canvas');
-        canvas.width = 512;
-        canvas.height = 512;
-        const ctx = canvas.getContext('2d');
+        try {
+            const canvas = document.createElement('canvas');
+            canvas.width = 512;
+            canvas.height = 512;
+            const ctx = canvas.getContext('2d');
 
-        // 背景：深みのある高級ダークグリーン
-        const bgGrad = ctx.createRadialGradient(256, 256, 50, 256, 256, 360);
-        bgGrad.addColorStop(0, '#1a4e3d');
-        bgGrad.addColorStop(0.7, '#0b2b22');
-        bgGrad.addColorStop(1, '#05120d');
-        ctx.fillStyle = bgGrad;
-        ctx.fillRect(0, 0, 512, 512);
+            // 背景：高級感あふれるダークグリーン
+            const bgGrad = ctx.createRadialGradient(256, 256, 50, 256, 256, 360);
+            bgGrad.addColorStop(0, '#1a4e3d');
+            bgGrad.addColorStop(0.7, '#0b2b22');
+            bgGrad.addColorStop(1, '#05120d');
+            ctx.fillStyle = bgGrad;
+            ctx.fillRect(0, 0, 512, 512);
 
-        // ゴールド枠線
-        ctx.strokeStyle = 'rgba(212, 175, 55, 0.4)';
-        ctx.lineWidth = 14;
-        ctx.strokeRect(20, 20, 472, 472);
+            // 外枠ゴールド
+            ctx.strokeStyle = 'rgba(212, 175, 55, 0.4)';
+            ctx.lineWidth = 14;
+            ctx.strokeRect(20, 20, 472, 472);
 
-        // 牌の描画関数（立体感・角度付き）
-        function draw3DTile(x, y, w, h, angle, char, charColor) {
-            ctx.save();
-            ctx.translate(x, y);
-            ctx.rotate(angle * Math.PI / 180);
+            // 牌の描画関数
+            function draw3DTile(x, y, w, h, angle, char, charColor) {
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.rotate(angle * Math.PI / 180);
 
-            // 1. 牌の影
-            ctx.shadowColor = 'rgba(0,0,0,0.6)';
-            ctx.shadowBlur = 25;
-            ctx.shadowOffsetX = 12;
-            ctx.shadowOffsetY = 18;
+                // 影
+                ctx.shadowColor = 'rgba(0,0,0,0.6)';
+                ctx.shadowBlur = 25;
+                ctx.shadowOffsetX = 12;
+                ctx.shadowOffsetY = 18;
 
-            // 2. 牌の背層（竹模様風グリーン側面）
-            ctx.fillStyle = '#0b5239';
-            ctx.beginPath();
-            ctx.roundRect(-w/2 + 12, -h/2 + 12, w, h, 20);
-            ctx.fill();
+                // 背面（緑層）
+                ctx.fillStyle = '#0b5239';
+                ctx.beginPath();
+                ctx.roundRect(-w/2 + 12, -h/2 + 12, w, h, 20);
+                ctx.fill();
 
-            ctx.shadowColor = 'transparent'; // 影をリセット
+                ctx.shadowColor = 'transparent';
 
-            // 3. 牌の表面（アイボリーホワイト・微グラデーション）
-            const tileGrad = ctx.createLinearGradient(-w/2, -h/2, w/2, h/2);
-            tileGrad.addColorStop(0, '#ffffff');
-            tileGrad.addColorStop(0.8, '#f5f3e9');
-            tileGrad.addColorStop(1, '#e3decb');
-            ctx.fillStyle = tileGrad;
-            ctx.beginPath();
-            ctx.roundRect(-w/2, -h/2, w, h, 20);
-            ctx.fill();
+                // 表面（アイボリー）
+                const tileGrad = ctx.createLinearGradient(-w/2, -h/2, w/2, h/2);
+                tileGrad.addColorStop(0, '#ffffff');
+                tileGrad.addColorStop(0.8, '#f5f3e9');
+                tileGrad.addColorStop(1, '#e3decb');
+                ctx.fillStyle = tileGrad;
+                ctx.beginPath();
+                ctx.roundRect(-w/2, -h/2, w, h, 20);
+                ctx.fill();
 
-            // 牌の表面内枠線（リアルな掘り込み感）
-            ctx.strokeStyle = 'rgba(0,0,0,0.06)';
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.roundRect(-w/2 + 8, -h/2 + 8, w - 16, h - 16, 14);
-            ctx.stroke();
+                // 内枠掘り込み
+                ctx.strokeStyle = 'rgba(0,0,0,0.06)';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.roundRect(-w/2 + 8, -h/2 + 8, w - 16, h - 16, 14);
+                ctx.stroke();
 
-            // 4. 文字描画
-            ctx.fillStyle = charColor;
-            ctx.font = 'bold 130px "Hiragino Sans", "SF Pro Text", sans-serif';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.shadowColor = 'rgba(0,0,0,0.15)';
-            ctx.shadowBlur = 4;
-            ctx.shadowOffsetY = 2;
-            ctx.fillText(char, 0, 5);
+                // 文字（中・發）
+                ctx.fillStyle = charColor;
+                ctx.font = 'bold 130px "Hiragino Sans", "SF Pro Text", sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.shadowColor = 'rgba(0,0,0,0.15)';
+                ctx.shadowBlur = 4;
+                ctx.shadowOffsetY = 2;
+                ctx.fillText(char, 0, 5);
 
-            ctx.restore();
+                ctx.restore();
+            }
+
+            // 奥の牌（發）
+            draw3DTile(200, 220, 160, 225, -12, '發', '#1b5e20');
+
+            // 手前の牌（中）
+            draw3DTile(305, 290, 160, 225, 8, '中', '#d32f2f');
+
+            const iconDataUrl = canvas.toDataURL('image/png');
+
+            let appleIcon = document.getElementById('apple-touch-icon');
+            if (appleIcon) appleIcon.href = iconDataUrl;
+
+            let favicon = document.getElementById('favicon');
+            if (favicon) favicon.href = iconDataUrl;
+        } catch(e) {
+            console.error("Icon generate failed:", e);
         }
-
-        // 奥の牌（發）: 少し左上、反時計回りに傾ける
-        draw3DTile(200, 220, 160, 225, -12, '發', '#1b5e20');
-
-        // 手前の牌（中）: 少し右下、時計回りに傾けて重ねる
-        draw3DTile(305, 290, 160, 225, 8, '中', '#d32f2f');
-
-        const iconDataUrl = canvas.toDataURL('image/png');
-
-        let appleIcon = document.querySelector('link[rel="apple-touch-icon"]');
-        if (appleIcon) appleIcon.href = iconDataUrl;
     }
 
     const SEATS = ['東家', '南家', '西家', '北家'];
