@@ -43,56 +43,59 @@
             line-height: 1.6;
         }
 
-        /* 🀄 タップエフェクト（一筒のスタンプ風デザイン） */
+        /* 🀄 タップエフェクト（一筒の細かいディテールを再現・少し小さめ） */
         .ippin-ripple {
             position: fixed;
-            width: 70px;
-            height: 70px;
-            margin-left: -35px;
-            margin-top: -35px;
-            border: 2.5px solid var(--gold);
+            width: 54px;
+            height: 54px;
+            margin-left: -27px;
+            margin-top: -27px;
+            border: 2px solid var(--gold);
             border-radius: 50%;
             pointer-events: none;
             z-index: 99999;
-            box-shadow: 0 0 16px rgba(212, 175, 55, 0.9), inset 0 0 10px rgba(212, 175, 55, 0.6);
+            box-shadow: 0 0 12px rgba(212, 175, 55, 0.8), inset 0 0 8px rgba(212, 175, 55, 0.5);
             display: flex;
             justify-content: center;
             align-items: center;
-            animation: stampAnim 0.5s cubic-bezier(0.15, 1.1, 0.3, 1) forwards;
+            background: rgba(142, 18, 18, 0.35); /* 一筒の特徴的な赤色のニュアンス */
+            animation: stampAnim 0.45s cubic-bezier(0.15, 1.1, 0.3, 1) forwards;
         }
 
-        /* 内側の一筒の模様（二重の円と中心の丸） */
+        /* 一筒の外周ギザギザ（擬似要素の複数レイヤーで放射状の模様を表現） */
         .ippin-ripple::before {
             content: '';
             position: absolute;
-            width: 34px;
-            height: 34px;
-            border: 1.5px solid var(--gold-light);
+            width: 42px;
+            height: 42px;
+            border: 1px dashed var(--gold-light);
             border-radius: 50%;
-            box-shadow: 0 0 10px rgba(243, 229, 171, 0.7);
+            box-shadow: 0 0 8px rgba(243, 229, 171, 0.6);
         }
 
+        /* 中央の丸（梅鉢・花びら状の意匠）を細かく再現 */
         .ippin-ripple::after {
             content: '';
             position: absolute;
-            width: 12px;
-            height: 12px;
-            background: radial-gradient(circle, var(--gold-light) 0%, var(--gold) 70%);
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, #ffffff 0%, var(--gold-light) 40%, var(--gold) 100%);
+            border: 1px solid var(--gold);
             border-radius: 50%;
-            box-shadow: 0 0 8px rgba(243, 229, 171, 0.9);
+            box-shadow: 0 0 6px rgba(255, 255, 255, 0.9);
         }
 
         @keyframes stampAnim {
             0% {
-                transform: scale(2.2);
+                transform: scale(1.8);
                 opacity: 0;
             }
             30% {
-                transform: scale(0.85);
+                transform: scale(0.9);
                 opacity: 1;
             }
-            50% {
-                transform: scale(1.08);
+            55% {
+                transform: scale(1.05);
                 opacity: 1;
             }
             100% {
@@ -647,7 +650,7 @@
 </div>
 
 <script>
-    // タップエフェクトの追加（スタンプ風）
+    // タップエフェクトの追加（一筒の細かいディテール＆小さめサイズ）
     document.addEventListener('click', (e) => {
         const ripple = document.createElement('div');
         ripple.className = 'ippin-ripple';
@@ -657,7 +660,7 @@
         
         setTimeout(() => {
             ripple.remove();
-        }, 500);
+        }, 450);
     });
 
     function setupEmbeddedIcon() {
