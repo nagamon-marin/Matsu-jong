@@ -43,6 +43,55 @@
             line-height: 1.6;
         }
 
+        /* 🀄 タップエフェクト（一筒のゴールド線デザイン） */
+        .ippin-ripple {
+            position: fixed;
+            width: 50px;
+            height: 50px;
+            margin-left: -25px;
+            margin-top: -25px;
+            border: 2px solid var(--gold);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 99999;
+            box-shadow: 0 0 12px rgba(212, 175, 55, 0.8), inset 0 0 8px rgba(212, 175, 55, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: ippinAnim 0.6s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+        }
+
+        /* 内側の一筒の模様（二重の円と十字線） */
+        .ippin-ripple::before {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            border: 1.5px solid var(--gold-light);
+            border-radius: 50%;
+            box-shadow: 0 0 8px rgba(243, 229, 171, 0.6);
+        }
+
+        .ippin-ripple::after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: radial-gradient(circle, var(--gold-light) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        @keyframes ippinAnim {
+            0% {
+                transform: scale(0.4);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(2.2);
+                opacity: 0;
+            }
+        }
+
         /* 🀄 起動画面（しっかり光る麻雀牌デザイン） */
         #splash-screen {
             position: fixed;
@@ -591,6 +640,19 @@
 </div>
 
 <script>
+    // タップエフェクトの追加
+    document.addEventListener('click', (e) => {
+        const ripple = document.createElement('div');
+        ripple.className = 'ippin-ripple';
+        ripple.style.left = `${e.clientX}px`;
+        ripple.style.top = `${e.clientY}px`;
+        document.body.appendChild(ripple);
+        
+        setTimeout(() => {
+            ripple.remove();
+        }, 600);
+    });
+
     function setupEmbeddedIcon() {
         try {
             const canvas = document.createElement('canvas');
@@ -1083,7 +1145,6 @@
         document.getElementById('tab-all').className = `tab-btn ${state.statsTabMode === 'all' ? 'active' : ''}`;
         document.getElementById('tab-tournament').className = `tab-btn ${state.statsTabMode === 'tournament' ? 'active' : ''}`;
 
-        // 大会別タブの時のみセレクトボックスを表示、全対局の時は非表示などにする場合はここで切り替え可能ですが、常に表示して便利にしてあります
         const statsSelectGroup = statsTSelect.closest('.form-group');
         if (statsSelectGroup) {
             statsSelectGroup.style.display = (state.statsTabMode === 'tournament') ? 'block' : 'none';
