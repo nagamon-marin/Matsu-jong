@@ -102,7 +102,6 @@
             background: transparent;
             border: 2px solid var(--gold);
             border-radius: 5px;
-            /* 枠の輝きをさらに強力に設定 */
             box-shadow: 0 0 16px rgba(212, 175, 55, 0.9), 0 0 25px rgba(243, 229, 171, 0.6), inset 0 0 8px rgba(212, 175, 55, 0.7);
             display: flex;
             justify-content: center;
@@ -110,11 +109,9 @@
             font-size: 1.15rem;
             font-weight: bold;
             color: var(--gold-light);
-            /* 文字自体の発光感を強く強調 */
             text-shadow: 0 0 10px rgba(255, 255, 255, 0.9), 0 0 18px rgba(243, 229, 171, 0.9), 0 0 25px rgba(212, 175, 55, 0.7);
         }
 
-        /* 円状に字牌7枚（東南西北白發中）を1/7（約51.4deg）ずつ均等配置 */
         .tile-1 { top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(0deg) translateY(-100px) rotate(0deg); }
         .tile-2 { top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(51.4deg) translateY(-100px) rotate(-51.4deg); }
         .tile-3 { top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(102.8deg) translateY(-100px) rotate(-102.8deg); }
@@ -295,6 +292,7 @@
         .btn:active { transform: scale(0.98); opacity: 0.9; }
         .btn-outline { background: transparent; color: var(--text-sub); border-color: rgba(255, 255, 255, 0.15); margin-top: 10px; }
         .btn-danger { color: var(--danger); border-color: rgba(239, 83, 80, 0.4); }
+        .btn-sm { padding: 6px 12px; font-size: 0.8rem; width: auto; }
 
         .member-tag {
             display: inline-flex;
@@ -392,7 +390,8 @@
         .detail-row {
             display: flex;
             justify-content: space-between;
-            padding: 4px 0;
+            align-items: center;
+            padding: 6px 0;
             border-bottom: 1px dashed rgba(255, 255, 255, 0.06);
         }
         .detail-row:last-child { border-bottom: none; }
@@ -556,7 +555,13 @@
     </section>
 
     <section class="card">
-        <h2>トータル成績 <span id="statsTournamentName" style="font-size: 0.78rem; font-weight: normal; color: var(--gold-light);"></span></h2>
+        <h2>トータル成績</h2>
+        
+        <div class="form-group" style="margin-bottom: 12px;">
+            <label>表示する対象</label>
+            <select id="statsTournamentSelect" onchange="changeStatsTournament()"></select>
+        </div>
+
         <div class="tab-container">
             <button id="tab-all" class="tab-btn active" onclick="switchStatsTab('all')">全対局</button>
             <button id="tab-tournament" class="tab-btn" onclick="switchStatsTab('tournament')">大会別</button>
@@ -579,7 +584,7 @@
     </section>
 
     <section class="card">
-        <h2>対局履歴 <span style="font-size:0.75rem; font-weight:normal; color:var(--text-sub);">(タップで詳細)</span></h2>
+        <h2>対局履歴 <span style="font-size:0.75rem; font-weight:normal; color:var(--text-sub);">(タップで詳細・修正)</span></h2>
         <div id="historyList"></div>
         <button class="btn btn-outline btn-danger" onclick="resetAllData()">全データをリセット</button>
     </section>
@@ -653,6 +658,7 @@
     let state = {
         tournaments: [{ id: 'none', name: '大会なし（指定なし）', rules: getDefaultRules() }],
         currentTournamentId: 'none',
+        statsTournamentId: 'none',
         statsTabMode: 'all',
         members: [], 
         history: [], 
@@ -680,6 +686,7 @@
                     });
                 }
                 if (parsed.currentTournamentId !== undefined) state.currentTournamentId = parsed.currentTournamentId;
+                if (parsed.statsTournamentId !== undefined) state.statsTournamentId = parsed.statsTournamentId;
                 if (parsed.statsTabMode) state.statsTabMode = parsed.statsTabMode;
                 if (parsed.members) state.members = parsed.members;
                 if (parsed.history) state.history = parsed.history;
@@ -715,6 +722,13 @@
         saveData();
     }
 
+    function changeStatsTournament() {
+        const sel = document.getElementById('statsTournamentSelect');
+        const val = sel.value;
+        state.statsTournamentId = val === 'none' ? 'none' : parseInt(val);
+        saveData();
+    }
+
     function deleteTournament() {
         if (state.currentTournamentId === 'none') {
             alert('「大会なし（指定なし）」は削除できません');
@@ -727,6 +741,7 @@
             if (h.tournamentId === state.currentTournamentId) h.tournamentId = 'none';
         });
         state.tournaments = state.tournaments.filter(x => x.id !== state.currentTournamentId);
+        if (state.statsTournamentId === state.currentTournamentId) state.statsTournamentId = 'none';
         state.currentTournamentId = 'none';
         saveData();
     }
@@ -963,7 +978,7 @@
     }
 
     function toggleDetails(id, event) {
-        if (event.target.classList.contains('remove-btn')) return;
+        if (event.target.classList.contains('remove-btn') || event.target.tagName === 'INPUT' || event.target.tagName === 'SELECT' || event.target.tagName === 'BUTTON') return;
         const el = document.getElementById(`details-${id}`);
         if (el) el.classList.toggle('open');
     }
@@ -972,6 +987,80 @@
         if (!confirm('この対局結果を削除しますか？')) return;
         state.history = state.history.filter(h => h.id !== id);
         saveData();
+    }
+
+    function editHistory(id) {
+        const historyObj = state.history.find(h => h.id === id);
+        if (!historyObj) return;
+
+        const rules = getCurrentRules();
+        const rule = rules[historyObj.mode];
+        const realStart = rule.start * 100;
+        const realReturn = rule.return * 100;
+        const roundingMode = rule.rounding || '56';
+        const yakitoriPenalty = rule.yakitori !== undefined ? rule.yakitori : 10;
+        const yakitoriMode = rule.yakitoriMode || 'top';
+
+        let players = [];
+        let totalInputScore = 0;
+        let selectedNames = [];
+
+        for (let i = 0; i < historyObj.mode; i++) {
+            const name = document.getElementById(`edit-name-${id}-${i}`).value;
+            const inputScore = parseInt(document.getElementById(`edit-score-${id}-${i}`).value);
+            const isYakitori = document.getElementById(`edit-yakitori-${id}-${i}`).checked;
+
+            if (!name || isNaN(inputScore)) {
+                alert('全員の名前とスコアを正しく入力してください');
+                return;
+            }
+            
+            selectedNames.push(name);
+            const realScore = inputScore * 100;
+            players.push({ name, score: realScore, isYakitori });
+            totalInputScore += realScore;
+        }
+
+        const duplicates = selectedNames.filter((item, index) => selectedNames.indexOf(item) !== index);
+        if (duplicates.length > 0) {
+            alert('同一プレイヤーが複数選択されています');
+            return;
+        }
+
+        if (totalInputScore !== realStart * historyObj.mode) {
+            if (!confirm('点数合計が合いません。このまま更新しますか？')) return;
+        }
+
+        players.sort((a, b) => b.score - a.score);
+        const yakitoriCount = players.filter(p => p.isYakitori).length;
+
+        let gameResults = [];
+        let nonTopPtSum = 0;
+
+        for (let index = 1; index < players.length; index++) {
+            const p = players[index];
+            let rawPt = ((p.score - realReturn) / 1000) + rule.uma[index];
+            let roundedPt = applyRounding(rawPt, roundingMode);
+            
+            if (yakitoriMode === 'split') {
+                roundedPt += p.isYakitori ? -(yakitoriPenalty * (historyObj.mode - 1)) : (yakitoriPenalty * yakitoriCount);
+            } else {
+                if (p.isYakitori) roundedPt -= yakitoriPenalty;
+            }
+
+            gameResults.push({ name: p.name, score: p.score, pt: roundedPt, rank: index + 1, isYakitori: p.isYakitori });
+            nonTopPtSum += roundedPt;
+        }
+
+        const topPlayer = players[0];
+        let topPt = 0 - nonTopPtSum;
+        if (roundingMode === 'none') topPt = Math.round(topPt * 10) / 10;
+
+        gameResults.unshift({ name: topPlayer.name, score: topPlayer.score, pt: topPt, rank: 1, isYakitori: topPlayer.isYakitori });
+
+        historyObj.results = gameResults;
+        saveData();
+        alert('対局履歴を修正しました！');
     }
 
     function resetAllData() {
@@ -986,13 +1075,24 @@
             `<option value="${t.id}" ${t.id === state.currentTournamentId ? 'selected' : ''}>${t.name}</option>`
         ).join('');
 
+        const statsTSelect = document.getElementById('statsTournamentSelect');
+        statsTSelect.innerHTML = state.tournaments.map(t => 
+            `<option value="${t.id}" ${t.id === state.statsTournamentId ? 'selected' : ''}>${t.name}</option>`
+        ).join('');
+
         document.getElementById('tab-all').className = `tab-btn ${state.statsTabMode === 'all' ? 'active' : ''}`;
         document.getElementById('tab-tournament').className = `tab-btn ${state.statsTabMode === 'tournament' ? 'active' : ''}`;
 
-        const currentT = state.tournaments.find(t => t.id === state.currentTournamentId);
-        document.getElementById('statsTournamentName').innerText = (state.statsTabMode === 'all') ? '[ 全対局 ]' : (currentT ? `[ ${currentT.name} ]` : '');
+        // 大会別タブの時のみセレクトボックスを表示、全対局の時は非表示などにする場合はここで切り替え可能ですが、常に表示して便利にしてあります
+        const statsSelectGroup = statsTSelect.closest('.form-group');
+        if (statsSelectGroup) {
+            statsSelectGroup.style.display = (state.statsTabMode === 'tournament') ? 'block' : 'none';
+        }
 
-        const filteredHistory = state.history.filter(h => state.statsTabMode === 'all' || h.tournamentId === state.currentTournamentId);
+        const filteredHistory = state.history.filter(h => {
+            if (state.statsTabMode === 'all') return true;
+            return h.tournamentId === state.statsTournamentId;
+        });
         const totalGamesCount = filteredHistory.length;
 
         const stats = {};
@@ -1042,6 +1142,9 @@
             const tObj = state.tournaments.find(t => t.id === h.tournamentId);
             const tournamentBadgeHtml = (tObj && tObj.id !== 'none') ? `<span class="tournament-badge">${tObj.name}</span>` : '';
             
+            let memberOptions = state.members.map(m => `<option value="${m.name}">${m.name}</option>`).join('');
+            if (state.members.length === 0) memberOptions = '<option value="">(メンバー未登録)</option>';
+
             return `
             <div class="history-item" onclick="toggleDetails(${h.id}, event)">
                 <div class="history-header">
@@ -1057,13 +1160,30 @@
                     <div class="remove-btn" onclick="deleteHistory(${h.id})">削除</div>
                 </div>
                 <div class="history-details" id="details-${h.id}">
-                    <div style="font-weight:500; margin-bottom:6px; color:var(--gold-light);">持ち点詳細:</div>
-                    ${h.results.map(r => `
-                        <div class="detail-row">
-                            <span>${r.rank}位: ${r.name} ${r.isYakitori ? '🍗' : ''}</span>
-                            <span>${r.score !== undefined ? r.score.toLocaleString() + ' 点' : ''} (${r.pt > 0 ? '+' : ''}${r.pt}pt)</span>
+                    <div style="font-weight:500; margin-bottom:8px; color:var(--gold-light);">対局結果の修正（各プレイヤーの持ち点・名前・ヤキトリ）:</div>
+                    ${h.results.map((r, i) => {
+                        const inputScoreVal = r.score !== undefined ? r.score / 100 : '';
+                        return `
+                        <div class="detail-row" style="flex-direction: column; align-items: stretch; gap: 6px; margin-bottom: 10px; background: rgba(255,255,255,0.02); padding: 8px; border-radius: 8px;">
+                            <div style="display: flex; gap: 6px; align-items: center;">
+                                <select id="edit-name-${h.id}-${i}" style="flex:1; padding: 6px 10px; font-size: 0.85rem;">
+                                    ${state.members.map(m => `<option value="${m.name}" ${m.name === r.name ? 'selected' : ''}>${m.name}</option>`).join('')}
+                                </select>
+                                <div class="score-input-wrap" style="width: 110px;">
+                                    <input type="number" id="edit-score-${h.id}-${i}" value="${inputScoreVal}" placeholder="点数" style="padding: 6px; font-size: 0.85rem;">
+                                    <span class="score-unit" style="font-size:0.75rem;">00点</span>
+                                </div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <label class="yakitori-toggle" style="margin-top:0;">
+                                    <input type="checkbox" id="edit-yakitori-${h.id}-${i}" ${r.isYakitori ? 'checked' : ''}>
+                                    🍗 ヤキトリ
+                                </label>
+                                <span style="font-size: 0.75rem; color: var(--text-sub);">現在: ${r.pt > 0 ? '+' : ''}${r.pt}pt</span>
+                            </div>
                         </div>
-                    `).join('')}
+                    `}).join('')}
+                    <button class="btn btn-sm" style="width:100%; margin-top:6px;" onclick="editHistory(${h.id})">この内容で修正を保存</button>
                 </div>
             </div>
         `}).join('');
