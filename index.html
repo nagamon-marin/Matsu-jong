@@ -43,18 +43,18 @@
             line-height: 1.6;
         }
 
-        /* 🀄 タップエフェクト（一筒・さらに半径を小さくしてコンパクトに） */
+        /* 🀄 タップエフェクト（一筒・面積を約1/3に絞ったプチサイズ） */
         .ippin-ripple {
             position: fixed;
-            width: 28px;
-            height: 28px;
-            margin-left: -14px;
-            margin-top: -14px;
-            border: 1.5px solid var(--gold);
+            width: 16px;
+            height: 16px;
+            margin-left: -8px;
+            margin-top: -8px;
+            border: 1px solid var(--gold);
             border-radius: 50%;
             pointer-events: none;
             z-index: 99999;
-            box-shadow: 0 0 8px rgba(212, 175, 55, 0.8), inset 0 0 5px rgba(212, 175, 55, 0.5);
+            box-shadow: 0 0 5px rgba(212, 175, 55, 0.8), inset 0 0 3px rgba(212, 175, 55, 0.5);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -62,32 +62,32 @@
             animation: stampAnim 0.4s cubic-bezier(0.15, 1.1, 0.3, 1) forwards;
         }
 
-        /* 一筒の外周ギザギザ（さらに半分サイズに調整） */
+        /* 一筒の外周ギザギザ */
         .ippin-ripple::before {
             content: '';
             position: absolute;
-            width: 21px;
-            height: 21px;
+            width: 12px;
+            height: 12px;
             border: 1px dashed var(--gold-light);
             border-radius: 50%;
-            box-shadow: 0 0 5px rgba(243, 229, 171, 0.6);
+            box-shadow: 0 0 3px rgba(243, 229, 171, 0.6);
         }
 
         /* 中央の丸（梅鉢・花びら状の意匠） */
         .ippin-ripple::after {
             content: '';
             position: absolute;
-            width: 10px;
-            height: 10px;
+            width: 6px;
+            height: 6px;
             background: radial-gradient(circle, #ffffff 0%, var(--gold-light) 40%, var(--gold) 100%);
-            border: 1px solid var(--gold);
+            border: 0.5px solid var(--gold);
             border-radius: 50%;
-            box-shadow: 0 0 4px rgba(255, 255, 255, 0.9);
+            box-shadow: 0 0 2px rgba(255, 255, 255, 0.9);
         }
 
         @keyframes stampAnim {
             0% {
-                transform: scale(1.8);
+                transform: scale(1.6);
                 opacity: 0;
             }
             30% {
@@ -650,7 +650,7 @@
 </div>
 
 <script>
-    // タップエフェクトの追加（一筒・コンパクトサイズ）
+    // タップエフェクトの追加（一筒・超コンパクトサイズ）
     document.addEventListener('click', (e) => {
         const ripple = document.createElement('div');
         ripple.className = 'ippin-ripple';
