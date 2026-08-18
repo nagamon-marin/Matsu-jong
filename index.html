@@ -43,7 +43,7 @@
             line-height: 1.6;
         }
 
-        /* 🀄 タップエフェクト（一筒・面積を約1/3に絞ったプチサイズ） */
+                /* 🀄 タップエフェクト（軽量化版） */
         .ippin-ripple {
             position: fixed;
             width: 16px;
@@ -54,11 +54,14 @@
             border-radius: 50%;
             pointer-events: none;
             z-index: 99999;
-            box-shadow: 0 0 5px rgba(212, 175, 55, 0.8), inset 0 0 3px rgba(212, 175, 55, 0.5);
+            /* 変更: 影を1つだけに減らして描画負荷を下げる */
+            box-shadow: 0 0 4px rgba(212, 175, 55, 0.6);
             display: flex;
             justify-content: center;
             align-items: center;
             background: rgba(142, 18, 18, 0.35);
+            /* 追加: ブラウザにアニメーションを事前予告してスムーズにする魔法 */
+            will-change: transform, opacity;
             animation: stampAnim 0.4s cubic-bezier(0.15, 1.1, 0.3, 1) forwards;
         }
 
@@ -70,7 +73,7 @@
             height: 12px;
             border: 1px dashed var(--gold-light);
             border-radius: 50%;
-            box-shadow: 0 0 3px rgba(243, 229, 171, 0.6);
+            /* 変更: こちらの影は削除 */
         }
 
         /* 中央の丸（梅鉢・花びら状の意匠） */
@@ -79,10 +82,10 @@
             position: absolute;
             width: 6px;
             height: 6px;
-            background: radial-gradient(circle, #ffffff 0%, var(--gold-light) 40%, var(--gold) 100%);
+            /* 変更: 重いグラデーションをやめて単色ベースに */
+            background: var(--gold-light);
             border: 0.5px solid var(--gold);
             border-radius: 50%;
-            box-shadow: 0 0 2px rgba(255, 255, 255, 0.9);
         }
 
         @keyframes stampAnim {
@@ -103,6 +106,7 @@
                 opacity: 0;
             }
         }
+
 
         /* 🀄 起動画面（しっかり光る麻雀牌デザイン） */
         #splash-screen {
